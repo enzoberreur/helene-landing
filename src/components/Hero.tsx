@@ -20,9 +20,9 @@ export default function Hero() {
       <div className="pointer-events-none absolute" style={{ top: '-10%', right: '-8%', width: '680px', height: '680px', background: 'radial-gradient(circle at center, rgba(232,62,115,0.09) 0%, transparent 65%)' }} />
       <div className="pointer-events-none absolute" style={{ bottom: '-15%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle at center, rgba(232,62,115,0.06) 0%, transparent 65%)' }} />
 
-      <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24 w-full">
+      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-24 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="flex flex-col gap-6 max-w-[540px]">
+          <div className="flex flex-col gap-6 max-w-[540px] w-full">
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full w-fit text-sm font-semibold animate-fade-in-up" style={{ background: '#FDF0F4', color: '#E83E73', animationDelay: '0ms' }}>
               <span className="w-2 h-2 rounded-full bg-[#E83E73]" style={{ animation: 'pulse-dot 2s ease-in-out infinite' }} />
@@ -30,7 +30,7 @@ export default function Hero() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-[2.75rem] sm:text-5xl lg:text-[3.25rem] font-bold text-gray-900 leading-[1.08] tracking-tight animate-fade-in-up" style={{ animationDelay: '80ms' }}>
+            <h1 className="text-[2rem] sm:text-[2.75rem] lg:text-[3.25rem] font-bold text-gray-900 leading-[1.08] tracking-tight animate-fade-in-up" style={{ animationDelay: '80ms' }}>
               {t('hero.headline1')}<span className="text-[#E83E73]">{t('hero.headlineHighlight')}</span>{t('hero.headline2')}
             </h1>
 
@@ -77,8 +77,8 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Phone mockups */}
-          <div className="flex justify-center lg:justify-end items-center">
+          {/* Phone mockups — desktop only */}
+          <div className="hidden lg:flex justify-end items-center">
             <div className="relative" style={{ width: '460px', height: '520px' }}>
               <div className="absolute phone-back" style={{ left: '0px', top: '30px', transform: 'rotate(-4deg)', zIndex: 1 }}>
                 <PhoneMockup src="/images/app-dashboard.png" alt="Helene dashboard" style={{ boxShadow: '0 20px 56px -8px rgba(0,0,0,0.14), 0 8px 16px -4px rgba(0,0,0,0.08)' }} />
