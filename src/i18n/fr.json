@@ -121,5 +121,53 @@
     "closingDescription": "Rejoignez plus de 2 400 femmes déjà sur la liste d'attente. L'accès anticipé ouvre bientôt.",
     "closingCTA": "S’inscrire"
   },
+  "survey": {
+    "skip": "Passer pour l'instant",
+    "other": "Autre",
+    "otherPlaceholder": "Décrivez votre symptôme...",
+    "otherConfirm": "Valider",
+    "questions": [
+      {
+        "question": "Quel symptôme vous affecte le plus en ce moment ?",
+        "options": [
+          "Bouffées de chaleur & sueurs nocturnes",
+          "Sommeil perturbé & insomnies",
+          "Sautes d'humeur & anxiété",
+          "Prise de poids & changements métaboliques",
+          "Brouillard mental & manque de concentration",
+          "Fatigue chronique",
+          "Autre"
+        ]
+      },
+      {
+        "question": "Dans quelle mesure vos symptômes affectent-ils votre quotidien ?",
+        "options": [
+          "Ils perturbent mon travail ou ma concentration",
+          "Ils affectent mes relations (couple, famille...)",
+          "Ils m'empêchent de profiter de ce que j'aime",
+          "Ils sont gérables — je veux juste mieux les comprendre",
+          "Je suis surtout là pour savoir ce qui m'attend"
+        ]
+      },
+      {
+        "question": "Ce qui vous aiderait le plus en ce moment ?",
+        "options": [
+          "Mieux comprendre ce qui se passe dans mon corps",
+          "Des conseils adaptés à mes symptômes précis",
+          "Savoir quand consulter un médecin",
+          "Échanger avec des femmes qui vivent la même chose"
+        ]
+      },
+      {
+        "question": "Si Helene vous aidait vraiment à gérer vos symptômes, vous seriez prête à...",
+        "options": [
+          "Payer un abonnement mensuel (~10–15€/mois)",
+          "Payer pour des fonctionnalités avancées sur une base gratuite",
+          "L'utiliser si elle est gratuite",
+          "Essayer gratuitement d'abord, puis décider"
+        ]
+      }
+    ]
+  },
   "lang": { "toggle": "EN" }
 }

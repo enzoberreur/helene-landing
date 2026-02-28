@@ -1,14 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import { useInView } from '../hooks/useInView'
 import { useWaitlistForm } from '../hooks/useWaitlistForm'
+import SurveyModal from './SurveyModal'
 
 export default function CTA() {
   const { t } = useTranslation()
-  const { email, setEmail, status, handleSubmit } = useWaitlistForm()
+  const { email, setEmail, status, handleSubmit, handleSurveyComplete, handleSurveySkip } = useWaitlistForm()
   const { ref, inView } = useInView(0.1)
 
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`py-16 lg:py-24 bg-white ${inView ? 'section-visible' : ''}`}>
+      {status === 'survey' && (
+        <SurveyModal onComplete={handleSurveyComplete} onSkip={handleSurveySkip} />
+      )}
       <div className="max-w-7xl mx-auto px-6">
         <div className="reveal reveal-1 relative overflow-hidden rounded-[24px] px-8 py-16 lg:py-20 text-center" style={{ background: 'linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%)' }}>
           <div className="pointer-events-none absolute" style={{ top: '-20%', right: '-10%', width: '400px', height: '400px', background: 'radial-gradient(circle at center, rgba(232,62,115,0.25) 0%, transparent 65%)' }} />
@@ -32,8 +36,8 @@ export default function CTA() {
               ) : (
                 <>
                   <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                    <input type="email" placeholder={t('cta.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'loading'} className="flex-1 px-5 py-3.5 rounded-full text-sm text-white placeholder-white/40 focus:outline-none transition-all duration-200 border disabled:opacity-60" style={{ background: 'rgba(255,255,255,0.08)', borderColor: status === 'error' ? '#f87171' : 'rgba(255,255,255,0.12)' }} />
-                    <button type="submit" disabled={status === 'loading'} className="bg-[#E83E73] text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-[#d63566] active:scale-[0.98] transition-all duration-200 whitespace-nowrap disabled:opacity-70 flex items-center justify-center gap-2" style={{ boxShadow: '0 8px 24px -4px rgba(232,62,115,0.4)', minWidth: '140px' }}>
+                    <input type="email" placeholder={t('cta.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'loading' || status === 'survey'} className="flex-1 px-5 py-3.5 rounded-full text-sm text-white placeholder-white/40 focus:outline-none transition-all duration-200 border disabled:opacity-60" style={{ background: 'rgba(255,255,255,0.08)', borderColor: status === 'error' ? '#f87171' : 'rgba(255,255,255,0.12)' }} />
+                    <button type="submit" disabled={status === 'loading' || status === 'survey'} className="bg-[#E83E73] text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-[#d63566] active:scale-[0.98] transition-all duration-200 whitespace-nowrap disabled:opacity-70 flex items-center justify-center gap-2" style={{ boxShadow: '0 8px 24px -4px rgba(232,62,115,0.4)', minWidth: '140px' }}>
                       {status === 'loading' ? (
                         <><svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" /></svg>{t('cta.joining')}</>
                       ) : t('cta.joinWaitlist')}

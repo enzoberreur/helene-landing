@@ -121,5 +121,53 @@
     "closingDescription": "Join 2,400+ women already on the waitlist. Early access is opening soon.",
     "closingCTA": "Join the Waitlist"
   },
+  "survey": {
+    "skip": "Skip for now",
+    "other": "Other",
+    "otherPlaceholder": "Describe your symptom...",
+    "otherConfirm": "Confirm",
+    "questions": [
+      {
+        "question": "What's your biggest symptom right now?",
+        "options": [
+          "Hot flashes & night sweats",
+          "Disrupted sleep & insomnia",
+          "Mood swings & anxiety",
+          "Weight gain & metabolism changes",
+          "Brain fog & poor concentration",
+          "Chronic fatigue",
+          "Other"
+        ]
+      },
+      {
+        "question": "How much are your symptoms affecting your daily life?",
+        "options": [
+          "They're disrupting my work or focus",
+          "They're affecting my relationships",
+          "They're stopping me from enjoying things I love",
+          "They're manageable — I just want to understand them better",
+          "I'm mostly here to learn what's coming"
+        ]
+      },
+      {
+        "question": "What would help you most right now?",
+        "options": [
+          "Better understanding what's happening in my body",
+          "Personalised advice for my specific symptoms",
+          "Knowing when to see a doctor",
+          "Connecting with women going through the same thing"
+        ]
+      },
+      {
+        "question": "If Helene helped you manage your symptoms effectively, you'd be ready to...",
+        "options": [
+          "Pay a monthly subscription (~€10–15/month)",
+          "Pay for premium features on top of a free version",
+          "Use it if it's free",
+          "Try for free first, then decide"
+        ]
+      }
+    ]
+  },
   "lang": { "toggle": "FR" }
 }

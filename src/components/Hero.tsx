@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useWaitlistForm } from '../hooks/useWaitlistForm'
+import SurveyModal from './SurveyModal'
 
 const AVATAR_COLORS = ['#F4A261', '#2A9D8F', '#E76F51', '#457B9D']
 
@@ -13,7 +14,7 @@ function PhoneMockup({ src, alt, className, style }: { src: string; alt: string;
 
 export default function Hero() {
   const { t } = useTranslation()
-  const { email, setEmail, status, handleSubmit } = useWaitlistForm()
+  const { email, setEmail, status, handleSubmit, handleSurveyComplete, handleSurveySkip } = useWaitlistForm()
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-white">
@@ -40,6 +41,10 @@ export default function Hero() {
             </p>
 
             {/* Form */}
+            {status === 'survey' && (
+              <SurveyModal onComplete={handleSurveyComplete} onSkip={handleSurveySkip} />
+            )}
+
             <div className="animate-fade-in-up" style={{ animationDelay: '240ms' }} id="waitlist">
               {status === 'success' ? (
                 <div className="flex items-center gap-3 px-5 py-4 rounded-2xl" style={{ background: '#F0FDF4', border: '1.5px solid #86efac' }}>
@@ -53,8 +58,8 @@ export default function Hero() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                  <input type="email" placeholder={t('hero.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'loading'} className="flex-1 px-5 py-3.5 rounded-full border border-gray-200 text-gray-900 text-sm placeholder-gray-400 bg-white focus:outline-none transition-all duration-200 disabled:opacity-60" style={{ borderColor: status === 'error' ? '#f87171' : undefined }} />
-                  <button type="submit" disabled={status === 'loading'} className="bg-[#E83E73] text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-[#d63566] active:scale-[0.98] transition-all duration-200 whitespace-nowrap disabled:opacity-70 flex items-center justify-center gap-2" style={{ boxShadow: '0 8px 24px -4px rgba(232,62,115,0.35)', minWidth: '140px' }}>
+                  <input type="email" placeholder={t('hero.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'loading' || status === 'survey'} className="flex-1 px-5 py-3.5 rounded-full border border-gray-200 text-gray-900 text-sm placeholder-gray-400 bg-white focus:outline-none transition-all duration-200 disabled:opacity-60" style={{ borderColor: status === 'error' ? '#f87171' : undefined }} />
+                  <button type="submit" disabled={status === 'loading' || status === 'survey'} className="bg-[#E83E73] text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-[#d63566] active:scale-[0.98] transition-all duration-200 whitespace-nowrap disabled:opacity-70 flex items-center justify-center gap-2" style={{ boxShadow: '0 8px 24px -4px rgba(232,62,115,0.35)', minWidth: '140px' }}>
                     {status === 'loading' ? (
                       <><svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" /></svg>{t('hero.joining')}</>
                     ) : t('hero.joinWaitlist')}
