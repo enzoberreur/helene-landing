@@ -3,7 +3,7 @@
     "features": "Fonctionnalités",
     "community": "Communauté",
     "about": "À propos",
-    "joinWaitlist": "Rejoindre la liste"
+    "joinWaitlist": "S'inscrire"
   },
   "hero": {
     "badge": "Accès anticipé disponible",
@@ -12,9 +12,9 @@
     "headline2": " avec confiance",
     "description": "Suivez vos symptômes, obtenez des insights personnalisés et rejoignez une communauté qui vous comprend. Helene est votre compagne au quotidien, à chaque étape.",
     "emailPlaceholder": "Votre adresse e-mail",
-    "joinWaitlist": "Rejoindre la liste",
+    "joinWaitlist": "S'inscrire",
     "joining": "Inscription...",
-    "successTitle": "Vous êtes sur la liste !",
+    "successTitle": "Vous êtes inscrite !",
     "successMessage": "Nous vous contacterons dès l'ouverture de l'accès anticipé.",
     "errorMessage": "Une erreur est survenue. Veuillez réessayer.",
     "socialProof": "femmes déjà inscrites",
@@ -30,14 +30,14 @@
       "headline": "Faites votre bilan par la voix — ou en tapotant. Dans tous les cas, ça prend deux minutes.",
       "description": "Chaque jour, Helene vous demande comment vous vous sentez. Vous pouvez noter vos symptômes vous-même, ou simplement parler à Helene à voix haute — elle écoute, comprend et répond comme une vraie voix. Pas besoin de taper, pas de formulaires à remplir. Juste une conversation de deux minutes dont votre futur vous sera reconnaissant.",
       "h1": "Conversation vocale bidirectionnelle — Helene vous répond à voix haute",
-      "h2": "Couvre le sommeil, l'humeur, les bouffées de chaleur, l'énergie et plus",
-      "h3": "Moins de deux minutes, chaque jour"
+      "h2": "Sommeil, humeur, bouffées de chaleur, énergie et bien plus",
+      "h3": "Moins de deux minutes par jour"
     },
     "f2": {
       "tag": "INSIGHTS INTELLIGENTS",
       "headline": "Visualisez vos tendances. Puis discutez-en — avec Helene.",
       "description": "Helene transforme vos bilans quotidiens en graphiques clairs, pour que vous puissiez enfin comprendre ce qui se passe dans votre corps. Et une fois par semaine, Helene vous fait passer l'échelle MRS — l'Échelle de Notation de la Ménopause, un questionnaire clinique validé utilisé par les médecins du monde entier — pour que vous ayez un repère médical concret de votre évolution.",
-      "h1": "Tendances visuelles sur les symptômes, les semaines et les mois",
+      "h1": "Suivez l'évolution de vos symptômes semaine après semaine",
       "h2": "Score MRS hebdomadaire — la référence clinique des médecins",
       "h3": "Discutez de vos données à voix haute ou par écrit avec Helene"
     },
@@ -59,15 +59,15 @@
     "r2title": "Des conseils qui marchent",
     "r2desc": "Découvrez ce qui aide d'autres femmes à gérer leurs symptômes au quotidien.",
     "r3title": "Un espace sécurisé",
-    "r3desc": "Un environnement modéré et bienveillant où chaque vécu est reconnu à sa juste valeur."
+    "r3desc": "Un environnement modéré et bienveillant où chaque expérience est prise au sérieux."
   },
   "cta": {
     "headline": "Rejoignez la liste d'attente dès aujourd'hui",
     "description": "Soyez parmi les premières à découvrir Helene. L'accès anticipé ouvre bientôt.",
     "emailPlaceholder": "Votre adresse e-mail",
-    "joinWaitlist": "Rejoindre la liste",
+    "joinWaitlist": "S’inscrire",
     "joining": "Inscription...",
-    "successTitle": "Vous êtes sur la liste !",
+    "successTitle": "Vous êtes inscrite !",
     "successMessage": "Nous vous contacterons dès l'ouverture de l'accès anticipé.",
     "errorMessage": "Une erreur est survenue. Veuillez réessayer."
   },
@@ -113,13 +113,13 @@
     "v3title": "Aucune femme ne devrait traverser ça seule",
     "v3body": "La ménopause est l'une des expériences les plus universelles que les femmes partagent — pourtant elle peut se sentir profondément isolante. Helene apporte un soutien quotidien, des données réelles et une communauté qui comprend, parce qu'elle le vit aussi.",
     "teamLabel": "L'ÉQUIPE",
-    "teamHeadline": "Construit par des gens qui y tiennent vraiment",
+    "teamHeadline": "Portée par des gens qui y croient vraiment",
     "teamDescription": "Nous sommes quatre étudiants en data science à l'Albert School × Mines Paris, unis par la conviction que la technologie peut radicalement changer la façon dont les femmes vivent cette transition.",
     "advisorText": "Nous cherchons activement des spécialistes de la ménopause et des conseillers médicaux pour rejoindre notre comité scientifique.",
     "advisorCTA": "Contactez-nous",
     "closingHeadline": "Prête à prendre soin de vous ?",
     "closingDescription": "Rejoignez plus de 2 400 femmes déjà sur la liste d'attente. L'accès anticipé ouvre bientôt.",
-    "closingCTA": "Rejoindre la liste"
+    "closingCTA": "S’inscrire"
   },
   "lang": { "toggle": "EN" }
 }
