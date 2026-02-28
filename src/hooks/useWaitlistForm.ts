@@ -42,22 +42,22 @@ export function useWaitlistForm() {
   }
 
   const handleSurveyComplete = async (answers: SurveyAnswers) => {
-    try {
-      await postToSheet(import.meta.env.VITE_APPS_SCRIPT_URL, {
-        email,
-        survey: true,
-        timestamp: new Date().toISOString(),
-        symptom: answers.q1,
-        impact: answers.q2,
-        need: answers.q3,
-        wtp: answers.q4,
-      })
-    } catch {
+    // Close modal immediately — prevents double submissions from rapid clicks
+    setStatus('success')
+    const savedEmail = email
+    setEmail('')
+
+    postToSheet(import.meta.env.VITE_APPS_SCRIPT_URL, {
+      email: savedEmail,
+      survey: true,
+      timestamp: new Date().toISOString(),
+      symptom: answers.q1,
+      impact: answers.q2,
+      need: answers.q3,
+      wtp: answers.q4,
+    }).catch(() => {
       // Survey failure is silent — email was already saved
-    } finally {
-      setStatus('success')
-      setEmail('')
-    }
+    })
   }
 
   const handleSurveySkip = () => {

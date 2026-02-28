@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export type SurveyAnswers = {
@@ -23,6 +23,7 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
   const [showOtherInput, setShowOtherInput] = useState(false)
   const [otherValue, setOtherValue] = useState('')
   const otherInputRef = useRef<HTMLInputElement>(null)
+  const completed = useRef(false)
 
   const questions = t('survey.questions', { returnObjects: true }) as Array<{
     question: string
@@ -39,7 +40,8 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
     }
   }, [showOtherInput])
 
-  const advance = (value: string) => {
+  const advance = useCallback((value: string) => {
+    if (completed.current) return
     const key = `q${step + 1}` as keyof SurveyAnswers
     const newAnswers = { ...answers, [key]: value }
     setAnswers(newAnswers)
@@ -53,9 +55,10 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
         setAnimating(false)
       }, 160)
     } else {
+      completed.current = true
       onComplete(newAnswers)
     }
-  }
+  }, [step, answers, onComplete])
 
   const handleSelect = (option: string) => {
     if (isOtherStep && option === otherLabel) {
