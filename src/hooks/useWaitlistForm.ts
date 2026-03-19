@@ -1,26 +1,12 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { SurveyAnswers } from '../components/SurveyModal'
 
 type Status = 'idle' | 'loading' | 'survey' | 'success' | 'error'
 
-async function postToSheet(url: string | undefined, body: object) {
-  if (!url) {
-    console.warn('[Waitlist] VITE_APPS_SCRIPT_URL is not set. Data not submitted.')
-    return
-  }
-  // POST with text/plain avoids CORS preflight.
-  // mode: no-cors means we can't read the response — we assume success (optimistic UI).
-  await fetch(url, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(body),
-  })
-}
-
 export function useWaitlistForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
+  const pageIdRef = useRef<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,12 +15,19 @@ export function useWaitlistForm() {
     setStatus('loading')
 
     try {
-      await postToSheet(import.meta.env.VITE_APPS_SCRIPT_URL, {
-        email,
-        timestamp: new Date().toISOString(),
-        source: window.location.href,
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          timestamp: new Date().toISOString(),
+          source: window.location.href,
+        }),
       })
-      // Email saved — now show survey (don't clear email yet, needed for survey row)
+
+      const data = await res.json() as { pageId?: string }
+      pageIdRef.current = data.pageId ?? null
+
       setStatus('survey')
     } catch {
       setStatus('error')
@@ -44,17 +37,20 @@ export function useWaitlistForm() {
   const handleSurveyComplete = async (answers: SurveyAnswers) => {
     // Close modal immediately — prevents double submissions from rapid clicks
     setStatus('success')
-    const savedEmail = email
+    const pageId = pageIdRef.current
     setEmail('')
+    pageIdRef.current = null
 
-    postToSheet(import.meta.env.VITE_APPS_SCRIPT_URL, {
-      email: savedEmail,
-      survey: true,
-      timestamp: new Date().toISOString(),
-      symptom: answers.q1,
-      impact: answers.q2,
-      need: answers.q3,
-      wtp: answers.q4,
+    fetch('/api/waitlist', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pageId,
+        symptom: answers.q1,
+        impact: answers.q2,
+        need: answers.q3,
+        wtp: answers.q4,
+      }),
     }).catch(() => {
       // Survey failure is silent — email was already saved
     })
@@ -63,11 +59,13 @@ export function useWaitlistForm() {
   const handleSurveySkip = () => {
     setStatus('success')
     setEmail('')
+    pageIdRef.current = null
   }
 
   const reset = () => {
     setStatus('idle')
     setEmail('')
+    pageIdRef.current = null
   }
 
   return { email, setEmail, status, handleSubmit, handleSurveyComplete, handleSurveySkip, reset }
