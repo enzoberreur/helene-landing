@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hero Preview — Pick your montage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scrollbar-width: none; }
+    html::-webkit-scrollbar { display: none; }
+    body { background: #0a0a0a; color: white; font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+
+    .controls {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .controls button {
+      background: #E83E73; color: white; border: none; padding: 10px 24px;
+      border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .controls button:hover { opacity: 0.9; }
+    .controls span { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 64px 20px 20px; }
+
+    /* Hero replica — exact match of the landing page */
+    .hero {
+      position: relative; width: 100%; aspect-ratio: 16/9.5; overflow: hidden;
+      border-radius: 12px; background: black;
+    }
+    .hero video {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+    }
+
+    /* ── Navbar ── exact replica */
+    .hero-nav {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      max-width: 100%; padding: 0 24px; height: 54px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .hero-nav .logo-group {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .hero-nav .logo-group img {
+      width: 24px; height: 24px; object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+    .hero-nav .logo-group span {
+      font-weight: 600; font-size: 11px; letter-spacing: 0.14em; color: white;
+    }
+    .hero-nav .nav-links {
+      display: flex; align-items: center; gap: 24px;
+    }
+    .hero-nav .nav-links a {
+      font-size: 10.5px; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 400;
+    }
+    .hero-nav .nav-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .hero-nav .lang-btn {
+      font-size: 9px; font-weight: 500; letter-spacing: 0.1em; color: rgba(255,255,255,0.5);
+      background: none; border: none; cursor: default; font-family: inherit;
+    }
+    .hero-nav .join-btn {
+      background: white; color: #0A0A0A; border: none; padding: 7px 16px;
+      border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+      font-family: inherit; cursor: default;
+    }
+
+    /* ── Hero content ── exact replica */
+    .hero-content {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      padding: 28px 24px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .hero-content h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px; font-weight: 400; line-height: 1.06;
+      letter-spacing: -0.02em; color: white;
+    }
+    .hero-content .desc {
+      font-size: 10px; color: rgba(255,255,255,0.7); line-height: 1.7;
+      max-width: 360px;
+    }
+    .hero-content .form-row {
+      display: flex; gap: 6px; max-width: 300px; margin-top: 2px;
+    }
+    .hero-content .form-row input {
+      flex: 1; padding: 9px 16px; border-radius: 99px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);
+      font-size: 10px; color: white; outline: none; font-family: inherit;
+    }
+    .hero-content .form-row input::placeholder { color: rgba(255,255,255,0.4); }
+    .hero-content .form-row button {
+      background: white; color: #0A0A0A; border: none; padding: 9px 18px;
+      border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap;
+      font-family: inherit; cursor: default; min-width: 100px;
+    }
+    .hero-content .social {
+      font-size: 9.5px; color: rgba(255,255,255,0.5);
+    }
+    .hero-content .social strong {
+      font-weight: 600; color: rgba(255,255,255,0.7);
+    }
+
+    /* Version label */
+    .version-label {
+      position: absolute; top: 58px; left: 12px; z-index: 20;
+      background: rgba(255,255,255,0.12); backdrop-filter: blur(8px);
+      border-radius: 99px; padding: 5px 12px;
+      font-size: 10px; font-weight: 600; letter-spacing: 0.03em; color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <button onclick="document.querySelectorAll('video').forEach(v=>{v.currentTime=0;v.play()})">Restart all</button>
+    <span>Pick your hero montage</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- A — Emotional arc -->
+    <div class="hero">
+      <video src="/images/montage-a.mp4?v=3" autoplay muted loop playsinline></video>
+      <div class="hero-overlay"></div>
+      <div class="hero-nav">
+        <div class="logo-group"><img src="/images/logo.svg" alt=""><span>HELENE</span></div>
+        <div class="nav-links">
+          <a>How it works</a>
+          <a>Community</a>
+          <a>About</a>
+        </div>
+        <div class="nav-right">
+          <span class="lang-btn">FR</span>
+          <button class="join-btn">Join the waitlist</button>
+        </div>
+      </div>
+      <div class="hero-content">
+        <h1>Your symptoms <br>aren't random.<br> Let's connect the dots.</h1>
+        <p class="desc">The brain fog, the sleepless nights, the mood swings — it's not in your head. Hélène helps you understand what's happening, track it daily, and walk into your doctor's office with answers.</p>
+        <div class="form-row">
+          <input type="text" placeholder="Your email" disabled>
+          <button>Join the waitlist</button>
+        </div>
+        <p class="social"><strong>2,400+</strong> women already on the waitlist</p>
+      </div>
+      <div class="version-label">A — Emotional arc</div>
+    </div>
+
+    <!-- B — Body first -->
+    <div class="hero">
+      <video src="/images/montage-b.mp4?v=3" autoplay muted loop playsinline></video>
+      <div class="hero-overlay"></div>
+      <div class="hero-nav">
+        <div class="logo-group"><img src="/images/logo.svg" alt=""><span>HELENE</span></div>
+        <div class="nav-links">
+          <a>How it works</a>
+          <a>Community</a>
+          <a>About</a>
+        </div>
+        <div class="nav-right">
+          <span class="lang-btn">FR</span>
+          <button class="join-btn">Join the waitlist</button>
+        </div>
+      </div>
+      <div class="hero-content">
+        <h1>It's not in your head.<br>It's in your body.</h1>
+        <p class="desc">Hélène helps you understand what's happening, track it daily, and walk into your doctor's office with answers.</p>
+        <div class="form-row">
+          <input type="text" placeholder="Your email" disabled>
+          <button>Join the waitlist</button>
+        </div>
+        <p class="social"><strong>2,400+</strong> women already on the waitlist</p>
+      </div>
+      <div class="version-label">B — Body first</div>
+    </div>
+
+    <!-- C — Connection -->
+    <div class="hero">
+      <video src="/images/montage-c.mp4?v=3" autoplay muted loop playsinline></video>
+      <div class="hero-overlay"></div>
+      <div class="hero-nav">
+        <div class="logo-group"><img src="/images/logo.svg" alt=""><span>HELENE</span></div>
+        <div class="nav-links">
+          <a>How it works</a>
+          <a>Community</a>
+          <a>About</a>
+        </div>
+        <div class="nav-right">
+          <span class="lang-btn">FR</span>
+          <button class="join-btn">Join the waitlist</button>
+        </div>
+      </div>
+      <div class="hero-content">
+        <h1>You're not the only one<br>going through this.</h1>
+        <p class="desc">2,400+ women already on the waitlist. Because no one should navigate this alone.</p>
+        <div class="form-row">
+          <input type="text" placeholder="Your email" disabled>
+          <button>Join the waitlist</button>
+        </div>
+        <p class="social"><strong>2,400+</strong> women already on the waitlist</p>
+      </div>
+      <div class="version-label">C — Connection</div>
+    </div>
+
+    <!-- D — Cinematic slow -->
+    <div class="hero">
+      <video src="/images/montage-d.mp4?v=3" autoplay muted loop playsinline></video>
+      <div class="hero-overlay"></div>
+      <div class="hero-nav">
+        <div class="logo-group"><img src="/images/logo.svg" alt=""><span>HELENE</span></div>
+        <div class="nav-links">
+          <a>How it works</a>
+          <a>Community</a>
+          <a>About</a>
+        </div>
+        <div class="nav-right">
+          <span class="lang-btn">FR</span>
+          <button class="join-btn">Join the waitlist</button>
+        </div>
+      </div>
+      <div class="hero-content">
+        <h1>Your symptoms <br>aren't random.<br> Let's connect the dots.</h1>
+        <p class="desc">The brain fog, the sleepless nights, the mood swings — it's not in your head. Hélène helps you understand what's happening, track it daily, and walk into your doctor's office with answers.</p>
+        <div class="form-row">
+          <input type="text" placeholder="Your email" disabled>
+          <button>Join the waitlist</button>
+        </div>
+        <p class="social"><strong>2,400+</strong> women already on the waitlist</p>
+      </div>
+      <div class="version-label">D — Cinematic slow</div>
+    </div>
+
+  </div>
+</body>
+</html>

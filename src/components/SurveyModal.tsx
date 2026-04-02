@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export type SurveyAnswers = {
-  q1?: string
-  q2?: string
-  q3?: string
-  q4?: string
+  firstName?: string
+  age?: string
+  periodStatus?: string
 }
 
 interface Props {
@@ -13,45 +12,28 @@ interface Props {
   onSkip: () => void
 }
 
-const TOTAL = 4
-
 export default function SurveyModal({ onComplete, onSkip }: Props) {
   const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<SurveyAnswers>({})
   const [animating, setAnimating] = useState(false)
-  const [showOtherInput, setShowOtherInput] = useState(false)
-  const [otherValue, setOtherValue] = useState('')
-  const otherInputRef = useRef<HTMLInputElement>(null)
+  const [textValue, setTextValue] = useState('')
   const completed = useRef(false)
 
-  const questions = t('survey.questions', { returnObjects: true }) as Array<{
-    question: string
-    options: string[]
-  }>
+  const periodOptions = t('survey.periodOptions', { returnObjects: true }) as string[]
 
-  const otherLabel = t('survey.other')
-  const current = questions[step]
-  const isOtherStep = step === 0
+  const TOTAL = 3
 
-  useEffect(() => {
-    if (showOtherInput) {
-      otherInputRef.current?.focus()
-    }
-  }, [showOtherInput])
-
-  const advance = useCallback((value: string) => {
+  const advance = useCallback((field: keyof SurveyAnswers, value: string) => {
     if (completed.current) return
-    const key = `q${step + 1}` as keyof SurveyAnswers
-    const newAnswers = { ...answers, [key]: value }
+    const newAnswers = { ...answers, [field]: value }
     setAnswers(newAnswers)
 
     if (step < TOTAL - 1) {
       setAnimating(true)
       setTimeout(() => {
         setStep(s => s + 1)
-        setShowOtherInput(false)
-        setOtherValue('')
+        setTextValue('')
         setAnimating(false)
       }, 160)
     } else {
@@ -60,18 +42,11 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
     }
   }, [step, answers, onComplete])
 
-  const handleSelect = (option: string) => {
-    if (isOtherStep && option === otherLabel) {
-      setShowOtherInput(true)
-      return
-    }
-    advance(option)
-  }
-
-  const handleOtherConfirm = () => {
-    const trimmed = otherValue.trim()
+  const handleTextSubmit = () => {
+    const trimmed = textValue.trim()
     if (!trimmed) return
-    advance(trimmed)
+    if (step === 0) advance('firstName', trimmed)
+    else if (step === 1) advance('age', trimmed)
   }
 
   return (
@@ -97,7 +72,7 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
           </span>
         </div>
 
-        {/* Question + options */}
+        {/* Content */}
         <div
           style={{
             opacity: animating ? 0 : 1,
@@ -105,70 +80,101 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
             transition: 'opacity 160ms ease, transform 160ms ease',
           }}
         >
-          <h3 className="text-lg font-bold text-gray-900 mb-5 leading-snug">
-            {current?.question}
-          </h3>
-
-          <div className="flex flex-col gap-2.5">
-            {current?.options.map((option) => {
-              const isOther = isOtherStep && option === otherLabel
-              const isSelected = isOther && showOtherInput
-
-              return (
+          {/* Step 0: First name */}
+          {step === 0 && (
+            <>
+              <h3 className="text-lg font-bold text-gray-900 mb-2 leading-snug">
+                {t('survey.nameQuestion')}
+              </h3>
+              <p className="text-sm text-gray-400 mb-5">{t('survey.nameHint')}</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={textValue}
+                  onChange={e => setTextValue(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleTextSubmit()}
+                  placeholder={t('survey.namePlaceholder')}
+                  autoFocus
+                  className="flex-1 px-5 py-3.5 rounded-2xl border text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E83E73] transition-all duration-150"
+                  style={{ borderColor: '#E5E7EB' }}
+                />
                 <button
-                  key={option}
-                  onClick={() => handleSelect(option)}
-                  className="w-full text-left px-5 py-3.5 rounded-2xl border text-sm font-medium transition-all duration-150 active:scale-[0.99]"
-                  style={{
-                    borderColor: isSelected ? '#E83E73' : '#E5E7EB',
-                    color: isSelected ? '#E83E73' : '#374151',
-                    background: isSelected ? '#FDF0F4' : 'transparent',
-                  }}
-                  onMouseEnter={e => {
-                    if (isSelected) return
-                    ;(e.currentTarget as HTMLButtonElement).style.borderColor = '#E83E73'
-                    ;(e.currentTarget as HTMLButtonElement).style.color = '#E83E73'
-                    ;(e.currentTarget as HTMLButtonElement).style.background = '#FDF0F4'
-                  }}
-                  onMouseLeave={e => {
-                    if (isSelected) return
-                    ;(e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E7EB'
-                    ;(e.currentTarget as HTMLButtonElement).style.color = '#374151'
-                    ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
-                  }}
+                  onClick={handleTextSubmit}
+                  disabled={!textValue.trim()}
+                  className="px-5 py-3.5 rounded-2xl text-sm font-semibold text-white transition-all duration-150 disabled:opacity-40"
+                  style={{ background: '#E83E73' }}
                 >
-                  {option}
+                  →
                 </button>
-              )
-            })}
-          </div>
+              </div>
+            </>
+          )}
 
-          {/* Other free-text input */}
-          {showOtherInput && (
-            <div className="mt-3 flex gap-2">
-              <input
-                ref={otherInputRef}
-                type="text"
-                value={otherValue}
-                onChange={e => setOtherValue(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleOtherConfirm()}
-                placeholder={t('survey.otherPlaceholder')}
-                className="flex-1 px-4 py-3 rounded-2xl border text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-150"
-                style={{ borderColor: '#E83E73', background: '#FDF0F4' }}
-              />
-              <button
-                onClick={handleOtherConfirm}
-                disabled={!otherValue.trim()}
-                className="px-4 py-3 rounded-2xl text-sm font-semibold text-white transition-all duration-150 disabled:opacity-40"
-                style={{ background: '#E83E73' }}
-              >
-                {t('survey.otherConfirm')}
-              </button>
-            </div>
+          {/* Step 1: Age */}
+          {step === 1 && (
+            <>
+              <h3 className="text-lg font-bold text-gray-900 mb-2 leading-snug">
+                {t('survey.ageQuestion')}
+              </h3>
+              <p className="text-sm text-gray-400 mb-5">{t('survey.ageHint')}</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={textValue}
+                  onChange={e => setTextValue(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleTextSubmit()}
+                  placeholder={t('survey.agePlaceholder')}
+                  autoFocus
+                  min="30"
+                  max="70"
+                  className="flex-1 px-5 py-3.5 rounded-2xl border text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#E83E73] transition-all duration-150"
+                  style={{ borderColor: '#E5E7EB' }}
+                />
+                <button
+                  onClick={handleTextSubmit}
+                  disabled={!textValue.trim()}
+                  className="px-5 py-3.5 rounded-2xl text-sm font-semibold text-white transition-all duration-150 disabled:opacity-40"
+                  style={{ background: '#E83E73' }}
+                >
+                  →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Step 2: Period status (maps to STRAW stages) */}
+          {step === 2 && (
+            <>
+              <h3 className="text-lg font-bold text-gray-900 mb-5 leading-snug">
+                {t('survey.periodQuestion')}
+              </h3>
+              <div className="flex flex-col gap-2.5">
+                {periodOptions.map(option => (
+                  <button
+                    key={option}
+                    onClick={() => advance('periodStatus', option)}
+                    className="w-full text-left px-5 py-3.5 rounded-2xl border text-sm font-medium transition-all duration-150 active:scale-[0.99]"
+                    style={{ borderColor: '#E5E7EB', color: '#374151' }}
+                    onMouseEnter={e => {
+                      ;(e.currentTarget as HTMLButtonElement).style.borderColor = '#E83E73'
+                      ;(e.currentTarget as HTMLButtonElement).style.color = '#E83E73'
+                      ;(e.currentTarget as HTMLButtonElement).style.background = '#FDF0F4'
+                    }}
+                    onMouseLeave={e => {
+                      ;(e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E7EB'
+                      ;(e.currentTarget as HTMLButtonElement).style.color = '#374151'
+                      ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
-        {/* Skip */}
+        {/* Close — goes back to email form, does NOT submit */}
         <button
           onClick={onSkip}
           className="mt-6 w-full text-center text-xs transition-colors duration-150"
@@ -176,7 +182,7 @@ export default function SurveyModal({ onComplete, onSkip }: Props) {
           onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF')}
           onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = '#D1D5DB')}
         >
-          {t('survey.skip')}
+          {t('survey.close')}
         </button>
       </div>
     </div>

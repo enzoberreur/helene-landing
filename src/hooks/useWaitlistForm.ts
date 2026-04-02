@@ -1,71 +1,53 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import type { SurveyAnswers } from '../components/SurveyModal'
 
-type Status = 'idle' | 'loading' | 'survey' | 'success' | 'error'
+type Status = 'idle' | 'loading' | 'survey' | 'submitting' | 'success' | 'error'
 
 export function useWaitlistForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
-  const pageIdRef = useRef<string | null>(null)
 
+  // Step 1: user enters email → open survey modal (no API call yet)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || status === 'loading' || status === 'survey' || status === 'success') return
+    setStatus('survey')
+  }
 
-    setStatus('loading')
+  // Step 2: survey completed → now submit everything to API
+  const handleSurveyComplete = async (answers: SurveyAnswers) => {
+    setStatus('submitting')
 
     try {
-      const res = await fetch('/api/waitlist', {
+      await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
+          firstName: answers.firstName,
+          age: answers.age,
+          periodStatus: answers.periodStatus,
           timestamp: new Date().toISOString(),
           source: window.location.href,
         }),
       })
 
-      const data = await res.json() as { pageId?: string }
-      pageIdRef.current = data.pageId ?? null
-
-      setStatus('survey')
+      setStatus('success')
+      setEmail('')
     } catch {
       setStatus('error')
+      setEmail('')
     }
   }
 
-  const handleSurveyComplete = async (answers: SurveyAnswers) => {
-    // Close modal immediately — prevents double submissions from rapid clicks
-    setStatus('success')
-    const pageId = pageIdRef.current
-    setEmail('')
-    pageIdRef.current = null
-
-    fetch('/api/waitlist', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pageId,
-        symptom: answers.q1,
-        impact: answers.q2,
-        need: answers.q3,
-        wtp: answers.q4,
-      }),
-    }).catch(() => {
-      // Survey failure is silent — email was already saved
-    })
-  }
-
   const handleSurveySkip = () => {
-    setStatus('success')
-    setEmail('')
-    pageIdRef.current = null
+    // Reset back to idle — they must complete to sign up
+    setStatus('idle')
   }
 
   const reset = () => {
     setStatus('idle')
     setEmail('')
-    pageIdRef.current = null
   }
 
   return { email, setEmail, status, handleSubmit, handleSurveyComplete, handleSurveySkip, reset }
