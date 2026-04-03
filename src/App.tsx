@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import About from './pages/About'
 import Survey from './pages/Survey'
+import WebApp from './webapp/WebApp'
 import { initialLocale } from './i18n'
 import { useLocaleSync } from './hooks/useLocaleSync'
 
@@ -38,6 +39,9 @@ export default function App() {
         <Route path="/fr/survey" element={<SurveyRoute />} />
         <Route path="/en/survey" element={<SurveyRoute />} />
         <Route path="/survey" element={<Navigate to={`/${initialLocale}/survey`} replace />} />
+
+        {/* Web App — iPhone-framed co-design prototype */}
+        <Route path="/app" element={<WebApp />} />
 
         {/* Root — redirect to detected locale */}
         <Route path="/" element={<Navigate to={`/${initialLocale}/`} replace />} />
