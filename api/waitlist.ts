@@ -78,7 +78,7 @@ export default async function handler(request: Request) {
 
   // POST — Step 1 signup: create Notion page + add to Brevo
   if (request.method === 'POST') {
-    const { email, firstName, age, periodStatus, timestamp, source } = await request.json()
+    const { email, firstName, age, periodStatus, locale, timestamp, source } = await request.json()
 
     const notionPeriodStatus = PERIOD_STATUS_MAP[periodStatus] ?? periodStatus
 
