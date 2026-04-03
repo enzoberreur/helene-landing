@@ -1,4 +1,5 @@
 import { theme } from '../theme'
+import { useT } from '../i18n'
 
 interface ArticleSection { heading?: string; body: string }
 interface Article { id: string; title: string; subtitle: string; fill: string; readTime: string; sections: ArticleSection[] }
@@ -42,6 +43,7 @@ export const articles: Article[] = [
 ]
 
 export default function ArticleView({ articleId, onClose }: { articleId: string; onClose: () => void }) {
+  const t = useT()
   const article = articles.find(a => a.id === articleId)
   if (!article) return null
 
@@ -78,7 +80,7 @@ export default function ArticleView({ articleId, onClose }: { articleId: string;
 
       <div className="px-6 pb-10 pt-2">
         <button onClick={onClose} className="w-full py-4 rounded-2xl font-semibold text-sm" style={{ background: theme.surface, color: theme.textSecondary }}>
-          Back
+          {t('common.back')}
         </button>
       </div>
     </div>

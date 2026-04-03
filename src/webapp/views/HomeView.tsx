@@ -1,5 +1,6 @@
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { isToday, moodLabels, moodDescriptions, moodFills, moodIcons, symptomsList, triggersList } from '../types'
 import CheckInView from './CheckInView'
 import ProfileView from './ProfileView'
@@ -8,12 +9,14 @@ import TreatmentLogView from './TreatmentLogView'
 import CalmToolsView from './CalmToolsView'
 import DoctorReportView from './DoctorReportView'
 import ArticleView from './ArticleView'
+import PeriodView from './PeriodView'
 
 interface Props {
   onOpenModal: (content: React.ReactNode | null) => void
 }
 
 export default function HomeView({ onOpenModal }: Props) {
+  const t = useT()
   const { profile, checkIns, treatments, mrsEntries, deleteTreatment } = useApp()
 
   const todayEntry = checkIns.find(e => isToday(e.date))
@@ -34,6 +37,7 @@ export default function HomeView({ onOpenModal }: Props) {
   const openSettings = () => onOpenModal(<ProfileView onClose={() => onOpenModal(null)} />)
   const openAssessment = () => onOpenModal(<AssessmentView onClose={() => onOpenModal(null)} />)
   const openTreatmentLog = () => onOpenModal(<TreatmentLogView onClose={() => onOpenModal(null)} />)
+  const openPeriod = () => onOpenModal(<PeriodView onClose={() => onOpenModal(null)} />)
   const openCalm = () => onOpenModal(<CalmToolsView onClose={() => onOpenModal(null)} />)
   const openDoctorReport = () => onOpenModal(<DoctorReportView onClose={() => onOpenModal(null)} />)
   const openArticle = (id: string) => onOpenModal(<ArticleView articleId={id} onClose={() => onOpenModal(null)} />)
@@ -64,10 +68,10 @@ export default function HomeView({ onOpenModal }: Props) {
   // --- Guided first week ---
   const accountDays = Math.floor(accountAge / 86400000)
   const guidedTip = (() => {
-    if (checkIns.length === 0 && accountDays <= 1) return { title: "Day 1 — Just check in", text: "Tap the card below to log how you feel. It takes 30 seconds. That's all for today.", icon: "👋" }
-    if (checkIns.length >= 1 && checkIns.length < 3 && accountDays <= 3) return { title: "Keep going", text: "You've logged your first check-in. Try adding symptoms tomorrow — that's where patterns start to show.", icon: "🌱" }
-    if (checkIns.length >= 3 && checkIns.length < 7 && accountDays <= 5) return { title: "Patterns emerging", text: "With 3+ check-ins, the Insights tab is starting to have real data. Take a look.", icon: "📊" }
-    if (checkIns.length >= 7 && accountDays <= 10) return { title: "One week of data", text: "The Doctor Report now has substance. Try generating it — you'll be surprised how much your data says.", icon: "🩺" }
+    if (checkIns.length === 0 && accountDays <= 1) return { title: t('tip.day1.title'), text: t('tip.day1.text'), icon: "👋" }
+    if (checkIns.length >= 1 && checkIns.length < 3 && accountDays <= 3) return { title: t('tip.day2.title'), text: t('tip.day2.text'), icon: "🌱" }
+    if (checkIns.length >= 3 && checkIns.length < 7 && accountDays <= 5) return { title: t('tip.day3.title'), text: t('tip.day3.text'), icon: "📊" }
+    if (checkIns.length >= 7 && accountDays <= 10) return { title: t('tip.day7.title'), text: t('tip.day7.text'), icon: "🩺" }
     return null
   })()
 
@@ -78,10 +82,10 @@ export default function HomeView({ onOpenModal }: Props) {
         <div>
           <p className="text-sm" style={{ color: theme.textSecondary }}>{dateStr}</p>
           <h1 className="text-3xl mt-1" style={{ color: theme.textPrimary }}>
-            {profile.firstName ? `Hello, ${profile.firstName}.` : 'Hello.'}
+            {profile.firstName ? t('home.date_greeting', { name: profile.firstName }) : t('home.date_greeting_anon')}
           </h1>
           <h1 className="text-3xl" style={{ color: theme.textPrimary }}>
-            How do you <span className="font-bold">feel today?</span>
+            {t('home.feel_today')} <span className="font-bold">{t('home.feel_today_bold')}</span>
           </h1>
         </div>
         <button
@@ -114,7 +118,7 @@ export default function HomeView({ onOpenModal }: Props) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2" strokeLinecap="round"><path d="M3 3v18h18" /><path d="M7 16l4-4 4 4 5-7" /></svg>
             </div>
             <div>
-              <p className="text-xs font-semibold mb-1" style={{ color: theme.textLight }}>THIS WEEK</p>
+              <p className="text-xs font-semibold mb-1" style={{ color: theme.textLight }}>{t('home.this_week')}</p>
               <p className="text-sm leading-relaxed" style={{ color: theme.textPrimary }}>{weekInsight}</p>
             </div>
           </div>
@@ -129,14 +133,14 @@ export default function HomeView({ onOpenModal }: Props) {
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium opacity-50" style={{ color: theme.textPrimary }}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1"><path d="M20 6L9 17l-5-5" /></svg>
-                Today's check-in
+                {t('home.todays_checkin')}
               </span>
               <button
                 onClick={() => openCheckIn(todayEntry.id)}
                 className="text-xs font-semibold px-3 py-1 rounded-full"
                 style={{ background: 'rgba(255,255,255,0.45)', color: theme.textPrimary }}
               >
-                Edit
+                {t('home.edit')}
               </button>
             </div>
             <div className="flex items-center gap-3">
@@ -178,7 +182,7 @@ export default function HomeView({ onOpenModal }: Props) {
         </div>
       ) : (
         <button onClick={() => openCheckIn()} className="w-full flex items-center justify-between px-5 py-4 rounded-3xl mb-5" style={{ background: theme.surface }}>
-          <span className="text-base" style={{ color: theme.textLight }}>Your reflection...</span>
+          <span className="text-base" style={{ color: theme.textLight }}>{t('home.reflection')}</span>
           <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: theme.dark }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
           </div>
@@ -191,8 +195,8 @@ export default function HomeView({ onOpenModal }: Props) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" /></svg>
           </div>
           <div className="flex-1 text-left">
-            <p className="text-sm font-semibold" style={{ color: theme.textPrimary }}>Weekly check-up ready</p>
-            <p className="text-xs" style={{ color: theme.textSecondary }}>11 questions · ~3 min</p>
+            <p className="text-sm font-semibold" style={{ color: theme.textPrimary }}>{t('home.weekly_ready')}</p>
+            <p className="text-xs" style={{ color: theme.textSecondary }}>{t('home.weekly_desc')}</p>
           </div>
           <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: theme.dark }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
@@ -200,16 +204,32 @@ export default function HomeView({ onOpenModal }: Props) {
         </button>
       )}
 
+      {/* Period tracking */}
+      <button onClick={openPeriod} className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-3xl mb-5 text-left" style={{ background: theme.surface }}>
+        <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: theme.sageFill }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2" strokeLinecap="round">
+            <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+          </svg>
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold" style={{ color: theme.textPrimary }}>{t('home.cycle_tracking')}</p>
+          <p className="text-xs" style={{ color: theme.textSecondary }}>{t('home.cycle_desc')}</p>
+        </div>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: theme.dark }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+        </div>
+      </button>
+
       {/* Treatments */}
       <div className="rounded-3xl p-5 mb-5" style={{ background: theme.surface }}>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold" style={{ color: theme.textPrimary }}>Treatments & Changes</p>
+          <p className="text-sm font-semibold" style={{ color: theme.textPrimary }}>{t('home.treatments')}</p>
           <button onClick={openTreatmentLog} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: theme.dark }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           </button>
         </div>
         {treatments.length === 0 ? (
-          <p className="text-sm" style={{ color: theme.textLight }}>Tap + to log your first treatment or lifestyle change.</p>
+          <p className="text-sm" style={{ color: theme.textLight }}>{t('home.treatments_empty')}</p>
         ) : (
           <div>
             {treatments.slice(0, 5).map(t => (
@@ -234,26 +254,26 @@ export default function HomeView({ onOpenModal }: Props) {
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <button onClick={openCalm} className="text-left">
-          <ActionCard title="Quick calm tools" subtitle="Breathing · 1–5 min" fill={theme.peachFill} icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round"><path d="M17.7 7.7A7.5 7.5 0 103 12h10.5" /></svg>} />
+          <ActionCard title={t('home.calm_title')} subtitle={t('home.calm_desc')} fill={theme.peachFill} icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round"><path d="M17.7 7.7A7.5 7.5 0 103 12h10.5" /></svg>} />
         </button>
         <button onClick={openDoctorReport} className="text-left">
-          <ActionCard title="Prepare for your doctor" subtitle="Generate report" fill={theme.mintFill} icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round"><path d="M4.8 2.3A2 2 0 106 5H4a2 2 0 10.8-2.7M8 5v1a6 6 0 006 6v0a6 6 0 006-6V5" /><path d="M14 18v4M10 18v4" /></svg>} />
+          <ActionCard title={t('home.doctor_title')} subtitle={t('home.doctor_desc')} fill={theme.mintFill} icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round"><path d="M4.8 2.3A2 2 0 106 5H4a2 2 0 10.8-2.7M8 5v1a6 6 0 006 6v0a6 6 0 006-6V5" /><path d="M14 18v4M10 18v4" /></svg>} />
         </button>
       </div>
 
       {/* For You */}
       <div className="mb-5">
-        <p className="text-sm font-semibold mb-3" style={{ color: theme.textPrimary }}>For you</p>
+        <p className="text-sm font-semibold mb-3" style={{ color: theme.textPrimary }}>{t('home.for_you')}</p>
         <div className="grid grid-cols-2 gap-3 mb-3">
           <button onClick={() => openArticle('understanding-body')} className="text-left">
-            <ArticleCard title="Understanding your body" subtitle="Learn what's happening" fill={theme.lavenderFill} illustration="body" />
+            <ArticleCard title={t('home.article1')} subtitle={t('home.article1_sub')} fill={theme.lavenderFill} illustration="body" />
           </button>
           <button onClick={() => openArticle('track-patterns')} className="text-left">
-            <ArticleCard title="Track your patterns" subtitle="Spot what changes" fill={theme.marigoldFill} illustration="wave" />
+            <ArticleCard title={t('home.article2')} subtitle={t('home.article2_sub')} fill={theme.marigoldFill} illustration="wave" />
           </button>
         </div>
         <button onClick={() => openArticle('sleep-menopause')} className="text-left w-full">
-          <ArticleCard title="Sleep disruption affects 68% of us" subtitle="Did you know? Tap to learn more" fill={theme.sageFill} illustration="moon" />
+          <ArticleCard title={t('home.article3')} subtitle={t('home.article3_sub')} fill={theme.sageFill} illustration="moon" />
         </button>
       </div>
 

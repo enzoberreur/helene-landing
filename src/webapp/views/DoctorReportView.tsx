@@ -1,8 +1,10 @@
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { mrsScores, symptomsList } from '../types'
 
 export default function DoctorReportView({ onClose }: { onClose: () => void }) {
+  const t = useT()
   const { profile, checkIns, mrsEntries, treatments } = useApp()
 
   const now = Date.now()
@@ -170,7 +172,7 @@ export default function DoctorReportView({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="pb-10 pt-4">
-        <button onClick={onClose} className="w-full py-4 rounded-2xl text-white font-semibold" style={{ background: theme.dark }}>Done</button>
+        <button onClick={onClose} className="w-full py-4 rounded-2xl text-white font-semibold" style={{ background: theme.dark }}>{t('common.done')}</button>
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { SurveyAnswers } from '../components/SurveyModal'
+import { trackLanding } from '../analytics'
 
 type Status = 'idle' | 'loading' | 'survey' | 'submitting' | 'success' | 'error'
 
@@ -13,6 +14,7 @@ export function useWaitlistForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || status === 'loading' || status === 'survey' || status === 'success') return
+    trackLanding.clickWaitlist()
     setStatus('survey')
   }
 
@@ -35,6 +37,7 @@ export function useWaitlistForm() {
         }),
       })
 
+      trackLanding.signupComplete()
       setStatus('success')
       setEmail('')
     } catch {

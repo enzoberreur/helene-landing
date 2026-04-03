@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { mrsScores } from '../types'
 import type { MRSEntry } from '../types'
+import { trackApp } from '../../analytics'
 
 const questions = {
   somatic: [
@@ -27,6 +29,7 @@ const questions = {
 const levels = ['None', 'Mild', 'Moderate', 'Severe', 'Very severe']
 
 export default function AssessmentView({ onClose }: { onClose: () => void }) {
+  const t = useT()
   const { addMRS } = useApp()
   const [step, setStep] = useState(0) // 0=intro, 1=somatic, 2=psych, 3=urogenital, 4=results
   const [answers, setAnswers] = useState<Record<string, number>>({})
@@ -54,6 +57,8 @@ export default function AssessmentView({ onClose }: { onClose: () => void }) {
       vaginalDryness: answers.vaginalDryness ?? 0,
     }
     addMRS(entry)
+    const scores = mrsScores(entry)
+    trackApp.mrsComplete(scores.total, scores.severity)
     setStep(4)
   }
 
@@ -141,7 +146,7 @@ export default function AssessmentView({ onClose }: { onClose: () => void }) {
       <div className="pb-10 pt-4">
         {step === 4 ? (
           <button onClick={onClose} className="w-full py-4 rounded-2xl text-white font-semibold" style={{ background: theme.dark }}>
-            Done
+            {t('common.done')}
           </button>
         ) : (
           <button
@@ -150,11 +155,11 @@ export default function AssessmentView({ onClose }: { onClose: () => void }) {
             className="w-full py-4 rounded-2xl text-white font-semibold transition-opacity disabled:opacity-30"
             style={{ background: theme.dark }}
           >
-            {step === 0 ? 'Begin assessment' : step === 3 ? 'See results' : 'Continue'}
+            {step === 0 ? 'Begin assessment' : step === 3 ? 'See results' : t('checkin.continue')}
           </button>
         )}
         {step > 0 && step < 4 && (
-          <button onClick={() => setStep(s => s - 1)} className="w-full text-center mt-3 text-sm" style={{ color: theme.textLight }}>Back</button>
+          <button onClick={() => setStep(s => s - 1)} className="w-full text-center mt-3 text-sm" style={{ color: theme.textLight }}>{t('common.back')}</button>
         )}
       </div>
     </div>

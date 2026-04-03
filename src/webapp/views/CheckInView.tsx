@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { symptomsList, triggersList } from '../types'
 import { markCheckedInToday } from '../notifications'
+import { trackApp } from '../../analytics'
 
 interface Props { existingEntryId: string | null; onClose: () => void }
 
@@ -47,6 +49,7 @@ function generateInsight(checkIns: Array<{ mood: number; symptoms: string[]; sle
 }
 
 export default function CheckInView({ existingEntryId, onClose }: Props) {
+  const t = useT()
   const { checkIns, addCheckIn, updateCheckIn } = useApp()
   const existing = existingEntryId ? checkIns.find(e => e.id === existingEntryId) : null
 
@@ -101,6 +104,7 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
     } else {
       addCheckIn({ id: crypto.randomUUID(), date: new Date().toISOString(), ...data })
       markCheckedInToday()
+      trackApp.checkInComplete(mood ?? 3, symptoms.size)
       // Show post-check-in insight
       const insight = generateInsight(checkIns, mood ?? 3, symptoms, sleep)
       if (insight) {
@@ -114,11 +118,11 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
   const canProceed = step === 0 ? mood !== null : true
 
   const moodOptions = [
-    { icon: '☀️', level: 5, label: 'Great' },
-    { icon: '🌤️', level: 4, label: 'Good' },
-    { icon: '☁️', level: 3, label: 'Okay' },
-    { icon: '🌧️', level: 2, label: 'Low' },
-    { icon: '🌧️', level: 1, label: 'Hard' },
+    { icon: '☀️', level: 5, label: t('checkin.great') },
+    { icon: '🌤️', level: 4, label: t('checkin.good') },
+    { icon: '☁️', level: 3, label: t('checkin.okay') },
+    { icon: '🌧️', level: 2, label: t('checkin.low') },
+    { icon: '🌧️', level: 1, label: t('checkin.hard') },
   ]
 
   // Post-check-in insight screen
@@ -128,7 +132,7 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6" style={{ background: theme.mintFill }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
         </div>
-        <h2 className="text-2xl font-bold mb-2 text-center" style={{ color: theme.textPrimary }}>Check-in saved</h2>
+        <h2 className="text-2xl font-bold mb-2 text-center" style={{ color: theme.textPrimary }}>{t('checkin.saved')}</h2>
         <div className="rounded-3xl p-5 mb-8 w-full" style={{ background: theme.surface }}>
           <div className="flex items-start gap-3">
             <span className="text-lg mt-0.5">💡</span>
@@ -136,7 +140,7 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
           </div>
         </div>
         <button onClick={onClose} className="w-full py-4 rounded-2xl text-white font-semibold" style={{ background: theme.dark }}>
-          Continue
+          {t('checkin.continue')}
         </button>
       </div>
     )
@@ -165,8 +169,8 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
         {/* Step 0: Mood */}
         {step === 0 && (
           <>
-            <h2 className="text-3xl font-bold mb-1" style={{ color: theme.textPrimary }}>How are you<br />feeling today?</h2>
-            <p className="text-sm mb-10" style={{ color: theme.textSecondary }}>Be honest — this is just for you.</p>
+            <h2 className="text-3xl font-bold mb-1 whitespace-pre-wrap" style={{ color: theme.textPrimary }}>{t('checkin.mood_title')}</h2>
+            <p className="text-sm mb-10" style={{ color: theme.textSecondary }}>{t('checkin.mood_sub')}</p>
             <div className="flex rounded-3xl p-4" style={{ background: theme.surface }}>
               {moodOptions.map(m => (
                 <button
@@ -196,8 +200,8 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
         {/* Step 1: Wellbeing */}
         {step === 1 && (
           <>
-            <h2 className="text-3xl font-bold mb-1" style={{ color: theme.textPrimary }}>A little more<br />about today</h2>
-            <p className="text-sm mb-8" style={{ color: theme.textSecondary }}>Optional — skip any row.</p>
+            <h2 className="text-3xl font-bold mb-1 whitespace-pre-wrap" style={{ color: theme.textPrimary }}>{t('checkin.wellbeing_title')}</h2>
+            <p className="text-sm mb-8" style={{ color: theme.textSecondary }}>{t('checkin.wellbeing_sub')}</p>
             <div className="rounded-3xl overflow-hidden" style={{ background: theme.surface }}>
               <WellbeingRow label="Sleep" icon="🌙" hint="1 = poor · 5 = great" value={sleep} onChange={setSleep} fill={theme.lavenderFill} />
               <div className="mx-4" style={{ height: 1, background: theme.separator }} />
@@ -211,8 +215,8 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
         {/* Step 2: Symptoms */}
         {step === 2 && (
           <>
-            <h2 className="text-3xl font-bold mb-1" style={{ color: theme.textPrimary }}>Any symptoms<br />today?</h2>
-            <p className="text-sm mb-6" style={{ color: theme.textSecondary }}>Select all that apply, or add your own.</p>
+            <h2 className="text-3xl font-bold mb-1 whitespace-pre-wrap" style={{ color: theme.textPrimary }}>{t('checkin.symptoms_title')}</h2>
+            <p className="text-sm mb-6" style={{ color: theme.textSecondary }}>{t('checkin.symptoms_sub')}</p>
             <div className="grid grid-cols-2 gap-2 mb-4">
               {symptomsList.map(s => (
                 <button
@@ -245,7 +249,7 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
                 value={customInput}
                 onChange={e => setCustomInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addCustom()}
-                placeholder="Add your own symptom..."
+                placeholder={t('checkin.add_custom')}
                 className="flex-1 px-4 py-3 rounded-2xl text-sm focus:outline-none"
                 style={{ background: theme.surface, color: theme.textPrimary }}
               />
@@ -261,8 +265,8 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
         {/* Step 3: Triggers */}
         {step === 3 && (
           <>
-            <h2 className="text-3xl font-bold mb-1" style={{ color: theme.textPrimary }}>What may have<br />influenced today?</h2>
-            <p className="text-sm mb-6" style={{ color: theme.textSecondary }}>Optional — helps spot patterns.</p>
+            <h2 className="text-3xl font-bold mb-1 whitespace-pre-wrap" style={{ color: theme.textPrimary }}>{t('checkin.triggers_title')}</h2>
+            <p className="text-sm mb-6" style={{ color: theme.textSecondary }}>{t('checkin.triggers_sub')}</p>
             <div className="grid grid-cols-2 gap-2">
               {triggersList.map(t => (
                 <button
@@ -285,12 +289,12 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
         {/* Step 4: Note */}
         {step === 4 && (
           <>
-            <h2 className="text-3xl font-bold mb-1" style={{ color: theme.textPrimary }}>Anything you'd<br />like to add?</h2>
-            <p className="text-sm mb-6" style={{ color: theme.textSecondary }}>Optional — a few words or a lot more.</p>
+            <h2 className="text-3xl font-bold mb-1 whitespace-pre-wrap" style={{ color: theme.textPrimary }}>{t('checkin.note_title')}</h2>
+            <p className="text-sm mb-6" style={{ color: theme.textSecondary }}>{t('checkin.note_sub')}</p>
             <textarea
               value={note}
               onChange={e => setNote(e.target.value)}
-              placeholder="How was today?"
+              placeholder={t('checkin.note_placeholder')}
               rows={5}
               autoFocus
               className="w-full px-4 py-3 rounded-3xl text-sm focus:outline-none resize-none"
@@ -308,11 +312,11 @@ export default function CheckInView({ existingEntryId, onClose }: Props) {
           className="w-full py-4 rounded-2xl text-white font-semibold transition-opacity disabled:opacity-30"
           style={{ background: theme.dark }}
         >
-          {step === TOTAL - 1 ? 'Save check-in' : 'Continue'}
+          {step === TOTAL - 1 ? t('checkin.save') : t('checkin.continue')}
         </button>
         {step > 0 && (
           <button onClick={() => setStep(s => s - 1)} className="w-full text-center mt-3 text-sm" style={{ color: theme.textLight }}>
-            Back
+            {t('checkin.back')}
           </button>
         )}
       </div>

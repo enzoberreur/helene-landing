@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { moodFills, mrsScores, symptomsList } from '../types'
 
 type Range = '7D' | '30D' | '3M' | 'All'
 
 export default function InsightsView() {
+  const t = useT()
   const { checkIns, mrsEntries } = useApp()
   const [range, setRange] = useState<Range>('7D')
 
@@ -75,7 +77,7 @@ export default function InsightsView() {
 
   return (
     <div className="px-6 pt-2">
-      <h1 className="text-2xl font-bold mb-4" style={{ color: theme.textPrimary }}>Insights</h1>
+      <h1 className="text-2xl font-bold mb-4" style={{ color: theme.textPrimary }}>{t('insights.title')}</h1>
 
       {/* Range selector */}
       <div className="flex gap-2 mb-5">
@@ -93,20 +95,20 @@ export default function InsightsView() {
 
       {filtered.length === 0 ? (
         <div className="rounded-3xl p-6 text-center" style={{ background: theme.surface }}>
-          <p className="text-sm" style={{ color: theme.textSecondary }}>No check-ins in this period yet. Start logging to see your trends.</p>
+          <p className="text-sm" style={{ color: theme.textSecondary }}>{t('insights.empty')}</p>
         </div>
       ) : (
         <>
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3 mb-5">
-            <StatCard label="Check-ins" value={String(filtered.length)} />
-            <StatCard label="Avg mood" value={avgMood} delta={prevAvgMood ? Number(avgMood) - prevAvgMood : undefined} />
-            <StatCard label="Streak" value={`${streak}d`} />
+            <StatCard label={t('insights.checkins')} value={String(filtered.length)} />
+            <StatCard label={t('insights.avg_mood')} value={avgMood} delta={prevAvgMood ? Number(avgMood) - prevAvgMood : undefined} />
+            <StatCard label={t('insights.streak')} value={`${streak}d`} />
           </div>
 
           {/* Mood trend (simplified bar chart) */}
           <div className="rounded-3xl p-4 mb-4" style={{ background: theme.surface }}>
-            <p className="text-xs font-semibold mb-3" style={{ color: theme.textPrimary }}>Mood trend</p>
+            <p className="text-xs font-semibold mb-3" style={{ color: theme.textPrimary }}>{t('insights.mood_trend')}</p>
             <div className="flex items-end gap-1" style={{ height: 100 }}>
               {filtered.slice(-14).map((e, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center justify-end" style={{ height: '100%' }}>
@@ -131,7 +133,7 @@ export default function InsightsView() {
 
           {/* Weekday pattern */}
           <div className="rounded-3xl p-4 mb-4" style={{ background: theme.surface }}>
-            <p className="text-xs font-semibold mb-3" style={{ color: theme.textPrimary }}>Mood by day</p>
+            <p className="text-xs font-semibold mb-3" style={{ color: theme.textPrimary }}>{t('insights.mood_by_day')}</p>
             <div className="flex items-end gap-1.5" style={{ height: 80 }}>
               {weekdayMood.map((d, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center justify-end" style={{ height: '100%' }}>
@@ -148,7 +150,7 @@ export default function InsightsView() {
           {/* Symptom frequency */}
           {symptomFreq.length > 0 && (
             <div className="rounded-3xl p-4 mb-4" style={{ background: theme.surface }}>
-              <p className="text-xs font-semibold mb-3" style={{ color: theme.textPrimary }}>Top symptoms</p>
+              <p className="text-xs font-semibold mb-3" style={{ color: theme.textPrimary }}>{t('insights.top_symptoms')}</p>
               {symptomFreq.map(([id, count]) => {
                 const label = symptomsList.find(s => s.id === id)?.label ?? id
                 const pct = (count / filtered.length) * 100
@@ -170,7 +172,7 @@ export default function InsightsView() {
           {/* MRS score */}
           {latestMRS && (
             <div className="rounded-3xl p-4 mb-4" style={{ background: theme.surface }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: theme.textPrimary }}>Latest MRS score</p>
+              <p className="text-xs font-semibold mb-2" style={{ color: theme.textPrimary }}>{t('insights.latest_mrs')}</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold" style={{ color: theme.textPrimary }}>{latestMRS.total}</span>
                 <span className="text-sm font-semibold" style={{ color: theme.rose }}>{latestMRS.severity}</span>

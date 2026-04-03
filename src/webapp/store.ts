@@ -1,12 +1,14 @@
 // LocalStorage-backed store — mirrors SwiftData + UserDefaults
 
 import { useState, useCallback } from 'react'
-import type { CheckInEntry, MRSEntry, TreatmentEntry, UserProfile, CommunityPost, ChatMessage } from './types'
+import type { CheckInEntry, MRSEntry, TreatmentEntry, UserProfile, CommunityPost, ChatMessage, PeriodEntry } from './types'
+import { syncCheckIn, syncMRS, syncTreatment } from './sync'
 
 const KEYS = {
   profile: 'helene_profile',
   checkIns: 'helene_checkins',
   mrs: 'helene_mrs',
+  periods: 'helene_periods',
   treatments: 'helene_treatments',
   posts: 'helene_posts',
   chat: 'helene_chat',
@@ -26,6 +28,8 @@ function save(key: string, data: unknown) {
 // Default profile
 const defaultProfile: UserProfile = {
   firstName: '',
+  userEmail: '',
+  lang: '',
   journeyStage: '',
   ageRange: '',
   hrtStatus: '',
@@ -134,6 +138,7 @@ export function useCheckIns() {
       save(KEYS.checkIns, next)
       return next
     })
+    syncCheckIn(entry)
   }, [])
 
   const updateEntry = useCallback((id: string, updates: Partial<CheckInEntry>) => {
@@ -156,6 +161,7 @@ export function useMRS() {
       save(KEYS.mrs, next)
       return next
     })
+    syncMRS(entry)
   }, [])
 
   return { entries, addEntry }
@@ -170,6 +176,7 @@ export function useTreatments() {
       save(KEYS.treatments, next)
       return next
     })
+    syncTreatment(entry)
   }, [])
 
   const deleteEntry = useCallback((id: string) => {
@@ -230,6 +237,36 @@ export function usePosts() {
   }, [])
 
   return { posts, savePosts, toggleUpvote, toggleBookmark, addPost, addComment }
+}
+
+export function usePeriods() {
+  const [entries, setEntries] = useState<PeriodEntry[]>(() => load(KEYS.periods, []))
+
+  const addEntry = useCallback((entry: PeriodEntry) => {
+    setEntries(prev => {
+      const next = [entry, ...prev].sort((a, b) => b.startDate.localeCompare(a.startDate))
+      save(KEYS.periods, next)
+      return next
+    })
+  }, [])
+
+  const updateEntry = useCallback((id: string, updates: Partial<PeriodEntry>) => {
+    setEntries(prev => {
+      const next = prev.map(e => e.id === id ? { ...e, ...updates } : e)
+      save(KEYS.periods, next)
+      return next
+    })
+  }, [])
+
+  const deleteEntry = useCallback((id: string) => {
+    setEntries(prev => {
+      const next = prev.filter(e => e.id !== id)
+      save(KEYS.periods, next)
+      return next
+    })
+  }, [])
+
+  return { entries, addEntry, updateEntry, deleteEntry }
 }
 
 export function useChat() {

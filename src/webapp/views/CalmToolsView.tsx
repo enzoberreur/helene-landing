@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { theme } from '../theme'
+import { useT } from '../i18n'
 
 interface BreathPhase { label: string; seconds: number; scale: number }
 interface Exercise { name: string; tagline: string; detail: string; duration: string; fill: string; phases: BreathPhase[]; cycles: number }
@@ -42,6 +43,7 @@ const exercises: Exercise[] = [
 ]
 
 export default function CalmToolsView({ onClose }: { onClose: () => void }) {
+  const t = useT()
   const [active, setActive] = useState<Exercise | null>(null)
 
   if (active) return <ActiveExercise exercise={active} onClose={() => setActive(null)} onDone={onClose} />
@@ -79,13 +81,14 @@ export default function CalmToolsView({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="pb-10 pt-4">
-        <button onClick={onClose} className="w-full text-center text-sm" style={{ color: theme.textLight }}>Close</button>
+        <button onClick={onClose} className="w-full text-center text-sm" style={{ color: theme.textLight }}>{t('common.close')}</button>
       </div>
     </div>
   )
 }
 
 function ActiveExercise({ exercise, onClose, onDone }: { exercise: Exercise; onClose: () => void; onDone: () => void }) {
+  const t = useT()
   const [phaseIndex, setPhaseIndex] = useState(0)
   const [cycle, setCycle] = useState(1)
   const [countdown, setCountdown] = useState(exercise.phases[0].seconds)
@@ -147,7 +150,7 @@ function ActiveExercise({ exercise, onClose, onDone }: { exercise: Exercise; onC
         <p className="text-sm text-center leading-relaxed mb-12" style={{ color: theme.textSecondary }}>
           You completed {exercise.cycles} cycles of {exercise.name}.<br />Your nervous system thanks you.
         </p>
-        <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold" style={{ background: theme.dark }}>Done</button>
+        <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold" style={{ background: theme.dark }}>{t('common.done')}</button>
       </div>
     )
   }

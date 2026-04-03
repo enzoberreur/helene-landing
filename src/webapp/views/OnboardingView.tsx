@@ -1,18 +1,26 @@
 import { useState } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { requestNotificationPermission } from '../notifications'
+import { trackApp } from '../../analytics'
 
 const STEPS = 9
 
 export default function OnboardingView() {
-  const { setProfile } = useApp()
+  const t = useT()
+  const { profile, setProfile } = useApp()
   const [step, setStep] = useState(0)
+
+  // Pre-fill name from URL param (captured in WebApp) or profile
+  const nameFromUrl = new URLSearchParams(window.location.search).get('name') ?? ''
+  const prefillName = profile.firstName || nameFromUrl
+
   const [answers, setAnswers] = useState({
     journeyStage: '', ageRange: '', symptoms: [] as string[],
-    hrtStatus: '', exerciseFrequency: '', smokingStatus: 'never',
-    alcoholFrequency: 'rarely', caffeineIntake: 'moderate',
-    primaryGoal: '', medicalFollowUp: '', firstName: '',
+    hrtStatus: '', exerciseFrequency: '', smokingStatus: '',
+    alcoholFrequency: '', caffeineIntake: '',
+    primaryGoal: '', medicalFollowUp: '', firstName: prefillName,
   })
 
   const set = (key: string, value: string | string[]) =>
@@ -41,7 +49,7 @@ export default function OnboardingView() {
       onboardingComplete: true,
       accountCreatedAt: new Date().toISOString(),
     }))
-    // Ask for notification permission after onboarding
+    trackApp.onboardingComplete()
     requestNotificationPermission()
   }
 
@@ -52,7 +60,7 @@ export default function OnboardingView() {
       case 2: return answers.symptoms.length > 0
       case 3: return !!answers.hrtStatus
       case 4: return !!answers.exerciseFrequency
-      case 5: return true // habits are pre-filled
+      case 5: return !!answers.smokingStatus && !!answers.alcoholFrequency && !!answers.caffeineIntake
       case 6: return !!answers.primaryGoal
       case 7: return !!answers.medicalFollowUp
       case 8: return answers.firstName.trim().length > 0
@@ -100,18 +108,18 @@ export default function OnboardingView() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {step === 0 && (
-          <StepWrapper title="Where are you in your journey?" subtitle="This helps us personalise everything for you.">
+          <StepWrapper title={t('onboard.journey')} subtitle={t('onboard.journey_sub')}>
             <div className="flex flex-col gap-2.5">
-              <OptionBtn label="My periods are still regular" selected={answers.journeyStage === 'regular'} onClick={() => set('journeyStage', 'regular')} />
-              <OptionBtn label="They've become irregular" selected={answers.journeyStage === 'irregular'} onClick={() => set('journeyStage', 'irregular')} />
-              <OptionBtn label="They've stopped" selected={answers.journeyStage === 'post'} onClick={() => set('journeyStage', 'post')} />
-              <OptionBtn label="I'm not sure" selected={answers.journeyStage === 'unsure'} onClick={() => set('journeyStage', 'unsure')} />
+              <OptionBtn label={t('onboard.regular')} selected={answers.journeyStage === 'regular'} onClick={() => set('journeyStage', 'regular')} />
+              <OptionBtn label={t('onboard.irregular')} selected={answers.journeyStage === 'irregular'} onClick={() => set('journeyStage', 'irregular')} />
+              <OptionBtn label={t('onboard.post')} selected={answers.journeyStage === 'post'} onClick={() => set('journeyStage', 'post')} />
+              <OptionBtn label={t('onboard.unsure')} selected={answers.journeyStage === 'unsure'} onClick={() => set('journeyStage', 'unsure')} />
             </div>
           </StepWrapper>
         )}
 
         {step === 1 && (
-          <StepWrapper title="What's your age range?" subtitle="Perimenopause affects different ages differently.">
+          <StepWrapper title={t('onboard.age')} subtitle={t('onboard.age_sub')}>
             <div className="flex flex-col gap-2.5">
               {['Under 40', '40–44', '45–50', '51–55', '55+'].map((label, i) => {
                 const val = ['under40', '40-44', '45-50', '51-55', '55+'][i]
@@ -122,7 +130,7 @@ export default function OnboardingView() {
         )}
 
         {step === 2 && (
-          <StepWrapper title="What symptoms have you noticed?" subtitle="Select all that apply.">
+          <StepWrapper title={t('onboard.symptoms')} subtitle={t('onboard.symptoms_sub')}>
             <div className="grid grid-cols-2 gap-2">
               {['Sleep issues', 'Anxiety', 'Fatigue', 'Hot flashes', 'Brain fog', 'Mood swings', 'Weight changes', 'Joint pain', 'Low libido', 'Dryness'].map(s => (
                 <ChipBtn key={s} label={s} selected={answers.symptoms.includes(s)} onClick={() => toggleSymptom(s)} />
@@ -132,7 +140,7 @@ export default function OnboardingView() {
         )}
 
         {step === 3 && (
-          <StepWrapper title="Are you on any hormonal treatment?" subtitle="This helps us understand your situation.">
+          <StepWrapper title={t('onboard.hrt')} subtitle={t('onboard.hrt_sub')}>
             <div className="flex flex-col gap-2.5">
               <OptionBtn label="No, nothing" selected={answers.hrtStatus === 'none'} onClick={() => set('hrtStatus', 'none')} />
               <OptionBtn label="Yes, HRT" selected={answers.hrtStatus === 'hrt'} onClick={() => set('hrtStatus', 'hrt')} />
@@ -143,7 +151,7 @@ export default function OnboardingView() {
         )}
 
         {step === 4 && (
-          <StepWrapper title="How often do you exercise?" subtitle="Movement can significantly impact symptoms.">
+          <StepWrapper title={t('onboard.exercise')} subtitle={t('onboard.exercise_sub')}>
             <div className="flex flex-col gap-2.5">
               <OptionBtn label="Rarely" selected={answers.exerciseFrequency === 'rarely'} onClick={() => set('exerciseFrequency', 'rarely')} />
               <OptionBtn label="Sometimes (1-2x/week)" selected={answers.exerciseFrequency === 'sometimes'} onClick={() => set('exerciseFrequency', 'sometimes')} />
@@ -154,7 +162,7 @@ export default function OnboardingView() {
         )}
 
         {step === 5 && (
-          <StepWrapper title="A few daily habits" subtitle="These can influence your symptoms — no judgment.">
+          <StepWrapper title={t('onboard.habits')} subtitle={t('onboard.habits_sub')}>
             <div className="flex flex-col gap-5">
               <div>
                 <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>Smoking</p>
@@ -185,7 +193,7 @@ export default function OnboardingView() {
         )}
 
         {step === 6 && (
-          <StepWrapper title="What matters most to you right now?" subtitle="We'll tailor your experience.">
+          <StepWrapper title={t('onboard.goal')} subtitle={t('onboard.goal_sub')}>
             <div className="flex flex-col gap-2.5">
               <OptionBtn label="Understanding what's happening to me" selected={answers.primaryGoal === 'understand'} onClick={() => set('primaryGoal', 'understand')} />
               <OptionBtn label="Connecting with other women" selected={answers.primaryGoal === 'community'} onClick={() => set('primaryGoal', 'community')} />
@@ -196,7 +204,7 @@ export default function OnboardingView() {
         )}
 
         {step === 7 && (
-          <StepWrapper title="Do you have medical support?" subtitle="A doctor or specialist following your transition?">
+          <StepWrapper title={t('onboard.medical')} subtitle={t('onboard.medical_sub')}>
             <div className="flex flex-col gap-2.5">
               <OptionBtn label="Yes, regularly" selected={answers.medicalFollowUp === 'yes'} onClick={() => set('medicalFollowUp', 'yes')} />
               <OptionBtn label="Sometimes" selected={answers.medicalFollowUp === 'sometimes'} onClick={() => set('medicalFollowUp', 'sometimes')} />
@@ -206,7 +214,7 @@ export default function OnboardingView() {
         )}
 
         {step === 8 && (
-          <StepWrapper title="What's your first name?" subtitle="So Hélène can talk to you like a person.">
+          <StepWrapper title={t('onboard.name')} subtitle={t('onboard.name_sub')}>
             <input
               type="text"
               value={answers.firstName}
@@ -220,7 +228,7 @@ export default function OnboardingView() {
         )}
       </div>
 
-      {/* Action button */}
+      {/* Action buttons */}
       <div className="pb-10 pt-4">
         <button
           onClick={() => step === STEPS - 1 ? finish() : setStep(s => s + 1)}
@@ -228,8 +236,17 @@ export default function OnboardingView() {
           className="w-full py-4 rounded-2xl text-white font-semibold transition-opacity disabled:opacity-30"
           style={{ background: theme.dark }}
         >
-          {step === STEPS - 1 ? "Let's begin" : 'Continue'}
+          {step === STEPS - 1 ? t('onboard.begin') : t('checkin.continue')}
         </button>
+        {step > 0 && (
+          <button
+            onClick={() => setStep(s => s - 1)}
+            className="w-full text-center mt-3 text-sm"
+            style={{ color: theme.textLight }}
+          >
+            {t('common.back')}
+          </button>
+        )}
       </div>
     </div>
   )

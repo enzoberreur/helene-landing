@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
+import { trackCommunity } from '../../analytics'
 
 interface Comment {
   id: string
@@ -39,6 +41,7 @@ const channelTags = [
 ]
 
 export default function CommunityView() {
+  const t = useT()
   const { profile } = useApp()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -117,6 +120,7 @@ export default function CommunityView() {
   }
 
   const handleNewPost = async (data: { title: string; body: string; tags: string[] }) => {
+    trackCommunity.postCreate()
     await fetch('/api/community?action=post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -200,7 +204,7 @@ export default function CommunityView() {
   return (
     <div className="px-6 pt-2">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold" style={{ color: theme.textPrimary }}>Community</h1>
+        <h1 className="text-2xl font-bold" style={{ color: theme.textPrimary }}>{t('community.title')}</h1>
         <button onClick={handleRefresh} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: theme.surface }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2" strokeLinecap="round" className={loading ? 'animate-spin' : ''}>
             <path d="M1 4v6h6M23 20v-6h-6" /><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
@@ -211,7 +215,7 @@ export default function CommunityView() {
       <input
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
-        placeholder="Search posts..."
+        placeholder={t('community.search')}
         className="w-full px-4 py-2.5 rounded-2xl text-sm mb-4 focus:outline-none"
         style={{ background: theme.surface, color: theme.textPrimary }}
       />
@@ -240,12 +244,12 @@ export default function CommunityView() {
 
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-sm" style={{ color: theme.textLight }}>Loading...</p>
+          <p className="text-sm" style={{ color: theme.textLight }}>{t('common.loading')}</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-3xl p-6 text-center" style={{ background: theme.surface }}>
           <p className="text-sm" style={{ color: theme.textSecondary }}>
-            {posts.length === 0 ? 'No posts yet. Be the first to share.' : 'No posts match your filters.'}
+            {posts.length === 0 ? t('community.no_posts') : t('community.no_match')}
           </p>
         </div>
       ) : (
@@ -322,6 +326,7 @@ function PostDetail({ post, onBack, onUpvote, onBookmark, onComment, onEdit, onD
   onDelete?: () => void
   isOwner?: boolean
 }) {
+  const t = useT()
   const [commentText, setCommentText] = useState('')
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null)
   const [showMenu, setShowMenu] = useState(false)
@@ -341,7 +346,7 @@ function PostDetail({ post, onBack, onUpvote, onBookmark, onComment, onEdit, onD
       <div className="flex items-center justify-between mb-4">
         <button onClick={onBack} className="text-sm text-left flex items-center gap-1" style={{ color: theme.textSecondary }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-          Back
+          {t('common.back')}
         </button>
         {isOwner && (
           <div className="relative">
@@ -364,8 +369,8 @@ function PostDetail({ post, onBack, onUpvote, onBookmark, onComment, onEdit, onD
           <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="w-full text-sm font-bold mb-2 focus:outline-none bg-transparent" style={{ color: theme.textPrimary }} />
           <textarea value={editBody} onChange={e => setEditBody(e.target.value)} rows={4} className="w-full text-sm mb-3 focus:outline-none bg-transparent resize-none" style={{ color: theme.textPrimary }} />
           <div className="flex gap-2">
-            <button onClick={() => setEditing(false)} className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: theme.background, color: theme.textSecondary }}>Cancel</button>
-            <button onClick={() => { onEdit?.({ title: editTitle, body: editBody, tags: post.tags }); setEditing(false) }} className="flex-1 py-2 rounded-xl text-xs font-semibold text-white" style={{ background: theme.dark }}>Save</button>
+            <button onClick={() => setEditing(false)} className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: theme.background, color: theme.textSecondary }}>{t('common.cancel')}</button>
+            <button onClick={() => { onEdit?.({ title: editTitle, body: editBody, tags: post.tags }); setEditing(false) }} className="flex-1 py-2 rounded-xl text-xs font-semibold text-white" style={{ background: theme.dark }}>{t('common.save')}</button>
           </div>
         </div>
       )}
@@ -458,8 +463,8 @@ function PostDetail({ post, onBack, onUpvote, onBookmark, onComment, onEdit, onD
       <div className="pb-6 pt-2">
         {replyTo && (
           <div className="flex items-center justify-between mb-2 px-1">
-            <span className="text-xs" style={{ color: theme.textSecondary }}>Replying to {replyTo.name}</span>
-            <button onClick={() => setReplyTo(null)} className="text-xs" style={{ color: theme.textLight }}>Cancel</button>
+            <span className="text-xs" style={{ color: theme.textSecondary }}>{t('community.reply_to', { name: replyTo.name })}</span>
+            <button onClick={() => setReplyTo(null)} className="text-xs" style={{ color: theme.textLight }}>{t('common.cancel')}</button>
           </div>
         )}
         <div className="flex gap-2">
@@ -467,7 +472,7 @@ function PostDetail({ post, onBack, onUpvote, onBookmark, onComment, onEdit, onD
             value={commentText}
             onChange={e => setCommentText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleComment()}
-            placeholder={replyTo ? `Reply to ${replyTo.name}...` : 'Write a comment...'}
+            placeholder={replyTo ? `${t('community.reply_to', { name: replyTo.name })}...` : t('community.write_comment')}
             className="flex-1 px-4 py-2.5 rounded-2xl text-sm focus:outline-none"
             style={{ background: theme.surface, color: theme.textPrimary }}
           />
@@ -486,6 +491,7 @@ function PostDetail({ post, onBack, onUpvote, onBookmark, onComment, onEdit, onD
 }
 
 function NewPostView({ onClose, onSubmit }: { onClose: () => void; onSubmit: (data: { title: string; body: string; tags: string[] }) => void }) {
+  const t = useT()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -496,8 +502,8 @@ function NewPostView({ onClose, onSubmit }: { onClose: () => void; onSubmit: (da
   return (
     <div className="flex flex-col flex-1 px-6 pt-2" style={{ background: theme.background }}>
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onClose} className="text-sm" style={{ color: theme.textSecondary }}>Cancel</button>
-        <h3 className="text-sm font-semibold" style={{ color: theme.textPrimary }}>New Post</h3>
+        <button onClick={onClose} className="text-sm" style={{ color: theme.textSecondary }}>{t('common.cancel')}</button>
+        <h3 className="text-sm font-semibold" style={{ color: theme.textPrimary }}>{t('community.new_post')}</h3>
         <button
           onClick={() => onSubmit({ title, body, tags: selectedTags })}
           disabled={!title.trim() || !body.trim()}

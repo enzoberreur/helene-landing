@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, createContext, useContext, useCallback } from 'react'
 import { theme } from './theme'
-import { useProfile, useCheckIns, useMRS, useTreatments, useChat } from './store'
+import { useProfile, useCheckIns, useMRS, useTreatments, usePeriods, useChat } from './store'
 import { registerServiceWorker, checkDailyReminder } from './notifications'
-import type { UserProfile, CheckInEntry, MRSEntry, TreatmentEntry, ChatMessage } from './types'
+import { trackApp } from '../analytics'
+import { detectLang, LangContext } from './i18n'
+import type { AppLang } from './i18n'
+import type { UserProfile, CheckInEntry, MRSEntry, TreatmentEntry, PeriodEntry, ChatMessage } from './types'
 import OnboardingView from './views/OnboardingView'
 import HomeView from './views/HomeView'
 import CommunityView from './views/CommunityView'
@@ -21,6 +24,10 @@ interface AppState {
   treatments: TreatmentEntry[]
   addTreatment: (e: TreatmentEntry) => void
   deleteTreatment: (id: string) => void
+  periods: PeriodEntry[]
+  addPeriod: (e: PeriodEntry) => void
+  updatePeriod: (id: string, u: Partial<PeriodEntry>) => void
+  deletePeriod: (id: string) => void
   chatMessages: ChatMessage[]
   addChatMessage: (m: ChatMessage) => void
   clearChat: () => void
@@ -71,6 +78,7 @@ export default function WebApp() {
   const { entries: checkIns, addEntry: addCheckIn, updateEntry: updateCheckIn } = useCheckIns()
   const { entries: mrsEntries, addEntry: addMRS } = useMRS()
   const { entries: treatments, addEntry: addTreatment, deleteEntry: deleteTreatment } = useTreatments()
+  const { entries: periods, addEntry: addPeriod, updateEntry: updatePeriod, deleteEntry: deletePeriod } = usePeriods()
   const { messages: chatMessages, addMessage: addChatMessage, clearChat } = useChat()
   const [modal, setModal] = useState<React.ReactNode | null>(null)
 
@@ -88,14 +96,16 @@ export default function WebApp() {
   const ctx: AppState = {
     profile, setProfile, checkIns, addCheckIn, updateCheckIn,
     mrsEntries, addMRS, treatments, addTreatment, deleteTreatment,
+    periods, addPeriod, updatePeriod, deletePeriod,
     chatMessages, addChatMessage, clearChat, openModal,
   }
 
-  // Register SW + check reminders on app open
+  // Register SW + check reminders + track app open
   useEffect(() => {
     registerServiceWorker()
     if (profile.onboardingComplete) {
       checkDailyReminder()
+      trackApp.open()
     }
   }, [profile.onboardingComplete])
 
@@ -132,15 +142,48 @@ export default function WebApp() {
   }
 
   useEffect(() => {
-    if (authenticated) return
     const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    if (code && handleAccessCode(code)) {
-      window.history.replaceState({}, '', '/app')
+
+    // Capture email + name from invite link — persists to profile
+    const emailParam = params.get('email')
+    const nameParam = params.get('name')
+    if (emailParam && !profile.userEmail) {
+      setProfile(p => ({ ...p, userEmail: emailParam }))
+    }
+    if (nameParam && !profile.firstName) {
+      setProfile(p => ({ ...p, firstName: nameParam }))
+    }
+
+    // Auto-auth with code
+    if (!authenticated) {
+      const code = params.get('code')
+      if (code && handleAccessCode(code)) {
+        window.history.replaceState({}, '', '/app')
+      }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!authenticated) return <AccessGate onSubmit={handleAccessCode} />
+  const appLang: AppLang = (profile.lang as AppLang) || detectLang()
+
+  if (!authenticated) return <LangContext.Provider value={appLang}><AccessGate onSubmit={handleAccessCode} /></LangContext.Provider>
+
+  // Day 7 / Day 14 feedback survey
+  const accountDays = Math.floor((Date.now() - new Date(profile.accountCreatedAt).getTime()) / 86400000)
+  const dismissedSurveys = JSON.parse(localStorage.getItem('helene_dismissed_surveys') || '[]') as string[]
+  const surveyToShow = profile.onboardingComplete && profile.communityPseudonym
+    ? (accountDays >= 14 && !dismissedSurveys.includes('day14') ? 'day14'
+      : accountDays >= 7 && !dismissedSurveys.includes('day7') ? 'day7'
+      : accountDays >= 3 && !dismissedSurveys.includes('day3') ? 'day3'
+      : accountDays >= 1 && !dismissedSurveys.includes('day1') ? 'day1'
+      : null)
+    : null
+
+  const dismissSurvey = (id: string) => {
+    const updated = [...dismissedSurveys, id]
+    localStorage.setItem('helene_dismissed_surveys', JSON.stringify(updated))
+    // Force re-render
+    window.dispatchEvent(new Event('storage'))
+  }
 
   const appContent = (
     <>
@@ -149,12 +192,16 @@ export default function WebApp() {
       ) : !profile.communityPseudonym ? (
         <PseudonymSetup />
       ) : (
-        <AppShell modal={modal} setModal={setModal} />
+        <>
+          <AppShell modal={modal} setModal={setModal} />
+          {surveyToShow && <FeedbackSurvey surveyId={surveyToShow} onDismiss={() => dismissSurvey(surveyToShow)} userEmail={profile.userEmail} />}
+        </>
       )}
     </>
   )
 
   return (
+    <LangContext.Provider value={appLang}>
     <AppContext.Provider value={ctx}>
       {showInstallPrompt ? (
         <InstallPrompt isIOS={isIOS} onContinue={handleDismiss} />
@@ -181,6 +228,7 @@ export default function WebApp() {
         </div>
       )}
     </AppContext.Provider>
+    </LangContext.Provider>
   )
 }
 
@@ -354,6 +402,138 @@ function TabIcon({ name, active }: { name: string; active: boolean }) {
   }
 }
 
+// In-app feedback survey — day 7 and day 14
+function FeedbackSurvey({ surveyId, onDismiss, userEmail }: { surveyId: string; onDismiss: () => void; userEmail: string }) {
+  const [step, setStep] = useState(0)
+  const [answers, setAnswers] = useState<string[]>(['', '', ''])
+  const [submitted, setSubmitted] = useState(false)
+
+  const config: Record<string, { title: string; subtitle: string; questions: string[] }> = {
+    day1: {
+      title: 'Your first impression',
+      subtitle: "You've just started. One quick question — we're listening.",
+      questions: [
+        "What was your first reaction when you opened Hélène?",
+        "Was anything confusing or unclear?",
+        "What would make you come back tomorrow?",
+      ],
+    },
+    day3: {
+      title: 'Three days in',
+      subtitle: "You've had a few days to explore. We'd love to know what you think.",
+      questions: [
+        "What have you used the most so far?",
+        "What feels unnecessary or in the way?",
+        "What would make Hélène feel essential to your day?",
+      ],
+    },
+    day7: {
+      title: 'One week with Hélène',
+      subtitle: "3 quick questions — your answers directly shape what we build next.",
+      questions: [
+        "What's the most useful thing you've found so far?",
+        "What's frustrating or confusing?",
+        "What's the one thing you wish Hélène could do?",
+      ],
+    },
+    day14: {
+      title: 'Two weeks in',
+      subtitle: "You're one of our most engaged users. This feedback matters a lot.",
+      questions: [
+        "What keeps you coming back?",
+        "What almost made you stop using it?",
+        "If you could change one thing about Hélène, what would it be?",
+      ],
+    },
+  }
+
+  const { title, subtitle, questions } = config[surveyId] ?? config.day7
+
+  const setAnswer = (value: string) => {
+    const next = [...answers]
+    next[step] = value
+    setAnswers(next)
+  }
+
+  const handleSubmit = () => {
+    // Save feedback locally + could POST to API
+    const feedback = {
+      surveyId,
+      email: userEmail,
+      timestamp: new Date().toISOString(),
+      q1: answers[0],
+      q2: answers[1],
+      q3: answers[2],
+    }
+    const existing = JSON.parse(localStorage.getItem('helene_survey_responses') || '[]')
+    existing.push(feedback)
+    localStorage.setItem('helene_survey_responses', JSON.stringify(existing))
+    trackApp.surveyResponse(surveyId, answers)
+    setSubmitted(true)
+    setTimeout(onDismiss, 2000)
+  }
+
+  return (
+    <div className="absolute inset-0 z-[60] flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}>
+      <div
+        className="w-full rounded-t-3xl px-6 pt-6 pb-8"
+        style={{ background: theme.background, maxHeight: '80%', animation: 'slideUp 0.3s ease' }}
+      >
+        {submitted ? (
+          <div className="text-center py-8">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: theme.mintFill }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
+            </div>
+            <p className="text-lg font-bold" style={{ color: theme.textPrimary }}>Thank you</p>
+            <p className="text-sm mt-1" style={{ color: theme.textSecondary }}>This is exactly what helps us build better.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-lg font-bold" style={{ color: theme.textPrimary }}>{title}</p>
+                <p className="text-xs" style={{ color: theme.textSecondary }}>{step + 1}/3</p>
+              </div>
+              <button onClick={onDismiss} className="text-xs" style={{ color: theme.textLight }}>Later</button>
+            </div>
+
+            <p className="text-sm mb-1" style={{ color: theme.textSecondary }}>
+              {step === 0 && subtitle}
+            </p>
+
+            <p className="text-sm font-semibold mb-3" style={{ color: theme.textPrimary }}>{questions[step]}</p>
+
+            <textarea
+              value={answers[step]}
+              onChange={e => setAnswer(e.target.value)}
+              placeholder="Your thoughts..."
+              rows={3}
+              autoFocus
+              className="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none resize-none mb-4"
+              style={{ background: theme.surface, color: theme.textPrimary }}
+            />
+
+            <div className="flex gap-2">
+              {step > 0 && (
+                <button onClick={() => setStep(s => s - 1)} className="flex-1 py-3 rounded-2xl text-sm font-medium"
+                  style={{ background: theme.surface, color: theme.textSecondary }}>Back</button>
+              )}
+              <button
+                onClick={() => step < 2 ? setStep(s => s + 1) : handleSubmit()}
+                disabled={!answers[step].trim()}
+                className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white disabled:opacity-30"
+                style={{ background: theme.dark }}
+              >
+                {step < 2 ? 'Next' : 'Send'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // Swipeable modal overlay — swipe/drag down on the handle to dismiss
 function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   const [translateY, setTranslateY] = useState(0)
@@ -454,7 +634,7 @@ function AppShell({ modal, setModal }: { modal: React.ReactNode | null; setModal
       <div className="absolute left-0 right-0 flex justify-center px-12" style={{ bottom: 'max(env(safe-area-inset-bottom, 8px), 8px)', zIndex: 40 }}>
         <div className="flex items-center rounded-full px-2 py-3" style={{ background: theme.dark, boxShadow: '0 20px 50px -10px rgba(0,0,0,0.4)' }}>
           {tabs.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} className="flex-1 flex items-center justify-center px-4 py-1" style={{ minWidth: 56 }}>
+            <button key={i} onClick={() => { setTab(i); trackApp.tabSwitch(t.name) }} className="flex-1 flex items-center justify-center px-4 py-1" style={{ minWidth: 56 }}>
               <TabIcon name={t.name} active={tab === i} />
             </button>
           ))}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 
 const categories = [
   { id: 'hrt', label: 'HRT', icon: '💊' },
@@ -12,6 +13,7 @@ const categories = [
 const statuses = ['started', 'stopped', 'adjusted', 'paused'] as const
 
 export default function TreatmentLogView({ onClose }: { onClose: () => void }) {
+  const t = useT()
   const { addTreatment } = useApp()
   const [category, setCategory] = useState<string>('hrt')
   const [name, setName] = useState('')
@@ -100,9 +102,9 @@ export default function TreatmentLogView({ onClose }: { onClose: () => void }) {
           className="w-full py-4 rounded-2xl text-white font-semibold transition-opacity disabled:opacity-30"
           style={{ background: theme.dark }}
         >
-          Save
+          {t('common.save')}
         </button>
-        <button onClick={onClose} className="w-full text-center mt-3 text-sm" style={{ color: theme.textLight }}>Cancel</button>
+        <button onClick={onClose} className="w-full text-center mt-3 text-sm" style={{ color: theme.textLight }}>{t('common.cancel')}</button>
       </div>
     </div>
   )

@@ -42,6 +42,8 @@ export interface TreatmentEntry {
 
 export interface UserProfile {
   firstName: string
+  userEmail: string
+  lang: 'en' | 'fr' | ''
   journeyStage: string
   ageRange: string
   hrtStatus: string
@@ -92,6 +94,14 @@ export interface PollOption {
   id: string
   text: string
   votes: number
+}
+
+export interface PeriodEntry {
+  id: string
+  startDate: string // ISO date (YYYY-MM-DD)
+  endDate: string | null
+  flow: ('light' | 'medium' | 'heavy' | 'spotting')[]  // per day
+  notes: string
 }
 
 export interface ChatMessage {

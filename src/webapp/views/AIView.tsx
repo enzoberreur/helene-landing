@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { theme } from '../theme'
 import { useApp } from '../WebApp'
+import { useT } from '../i18n'
 import { mrsScores } from '../types'
+import { trackAI } from '../../analytics'
 
 export default function AIView() {
+  const t = useT()
   const { chatMessages, addChatMessage, profile, checkIns, mrsEntries, treatments } = useApp()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -14,10 +17,10 @@ export default function AIView() {
   }, [chatMessages, isTyping])
 
   const quickActions = [
-    "How am I doing this week?",
-    "What patterns do you see?",
-    "Help me prepare for my doctor",
-    "I'm not feeling great today",
+    t('ai.q1'),
+    t('ai.q2'),
+    t('ai.q3'),
+    t('ai.q4'),
   ]
 
   const buildContext = () => ({
@@ -42,6 +45,7 @@ export default function AIView() {
     setInput('')
 
     addChatMessage({ id: crypto.randomUUID(), role: 'user', text: userMsg, timestamp: new Date().toISOString() })
+    trackAI.messagesSent()
     setIsTyping(true)
 
     try {
@@ -85,8 +89,8 @@ export default function AIView() {
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <div className="px-6 pt-2 pb-3">
-        <h1 className="text-2xl font-bold" style={{ color: theme.textPrimary }}>Hélène</h1>
-        <p className="text-xs" style={{ color: theme.textSecondary }}>Your companion through the transition</p>
+        <h1 className="text-2xl font-bold" style={{ color: theme.textPrimary }}>{t('ai.title')}</h1>
+        <p className="text-xs" style={{ color: theme.textSecondary }}>{t('ai.subtitle')}</p>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-6">
@@ -97,8 +101,7 @@ export default function AIView() {
                 Hi{profile.firstName ? `, ${profile.firstName}` : ''}!
               </p>
               <p className="text-sm leading-relaxed" style={{ color: theme.textSecondary }}>
-                I'm here to help you understand your patterns, prepare for doctor visits, or just listen.
-                What's on your mind?
+                {t('ai.welcome')}
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -145,7 +148,7 @@ export default function AIView() {
       <div className="px-6 pb-6 pt-2">
         <div className="flex gap-2">
           <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send(input)}
-            placeholder="Message Hélène..." disabled={isTyping}
+            placeholder={t('ai.placeholder')} disabled={isTyping}
             className="flex-1 px-4 py-3 rounded-2xl text-sm focus:outline-none disabled:opacity-50"
             style={{ background: theme.surface, color: theme.textPrimary }} />
           <button onClick={() => send(input)} disabled={!input.trim() || isTyping}
