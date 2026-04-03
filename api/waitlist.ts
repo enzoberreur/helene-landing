@@ -107,11 +107,16 @@ export default async function handler(request: Request) {
       })
     }
 
-    // Add contact to Brevo — wait for result so we can debug
+    // Add contact to Brevo — non-blocking, log error in response for debugging
     const BREVO_LIST_ID = Number(process.env.BREVO_LIST_ID ?? '2')
-    const brevoError = await addToBrevo(email, firstName ?? '', data.id!, locale ?? 'fr', BREVO_LIST_ID).catch((e) => String(e))
+    let brevoError: string | null = null
+    try {
+      brevoError = await addToBrevo(email, firstName ?? '', data.id!, locale ?? 'fr', BREVO_LIST_ID)
+    } catch (e) {
+      brevoError = String(e)
+    }
 
-    return new Response(JSON.stringify({ pageId: data.id, brevoError: brevoError ?? null }), {
+    return new Response(JSON.stringify({ pageId: data.id, brevoError }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders() },
     })
   }
