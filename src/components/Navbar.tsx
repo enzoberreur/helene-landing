@@ -11,7 +11,8 @@ export default function Navbar() {
   // Extract locale prefix from URL
   const lang = location.pathname.split('/')[1] === 'fr' ? 'fr' : (location.pathname.split('/')[1] === 'en' ? 'en' : i18n.language)
   const prefix = `/${lang}`
-  const isHome = location.pathname === `${prefix}/` || location.pathname === prefix
+  const pathWithoutPrefix = location.pathname.replace(prefix, '')
+  const isHome = pathWithoutPrefix === '/' || pathWithoutPrefix === ''
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)

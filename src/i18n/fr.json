@@ -140,5 +140,86 @@
       "Je suis sous contraception hormonale ou THS"
     ]
   },
+  "survey2": {
+    "pageTitle": "Aidez-nous à construire Hélène pour vous",
+    "pageSubtitle": "7 questions, 3 minutes. Vos réponses façonnent tout ce qu'on construit.",
+    "contraceptionQuestion": "Prenez-vous actuellement une contraception hormonale ou un THS ?",
+    "contraceptionOptions": ["No", "Yes — hormonal contraception", "Yes — HRT", "Yes — other"],
+    "contraceptionLabels": ["Non", "Oui — contraception hormonale", "Oui — THS", "Oui — autre"],
+    "symptomsQuestion": "Lesquels de ces changements avez-vous remarqués ces 6 derniers mois ?",
+    "symptomsHint": "Cochez tout ce qui s'applique",
+    "symptomsOptions": [
+      "Bouffées de chaleur ou sueurs nocturnes",
+      "Difficultés de sommeil",
+      "Changements d'humeur (anxiété, irritabilité, tristesse)",
+      "Brouillard mental ou problèmes de mémoire",
+      "Douleurs articulaires ou musculaires",
+      "Changements de poids ou de silhouette",
+      "Sécheresse vaginale ou troubles urinaires",
+      "Fatigue ou manque d'énergie",
+      "Aucun de ces symptômes"
+    ],
+    "doctorQuestion": "Avez-vous parlé de ces changements à un médecin ?",
+    "doctorOptions": [
+      "No I have not",
+      "Yes but did not feel heard",
+      "Yes and it was helpful",
+      "Not sure worth mentioning"
+    ],
+    "doctorLabels": [
+      "Non, jamais",
+      "Oui, mais je ne me suis pas sentie écoutée",
+      "Oui, et c'était utile",
+      "Je ne suis pas sûre que ça vaille le coup d'en parler"
+    ],
+    "doctorNotionMap": {
+      "Non, jamais": "No I have not",
+      "Oui, mais je ne me suis pas sentie écoutée": "Yes but did not feel heard",
+      "Oui, et c'était utile": "Yes and it was helpful",
+      "Je ne suis pas sûre que ça vaille le coup d'en parler": "Not sure worth mentioning"
+    },
+    "toolsQuestion": "Qu'utilisez-vous actuellement pour gérer ou suivre vos symptômes ?",
+    "toolsHint": "Cochez tout ce qui s'applique",
+    "toolsOptions": [
+      "Rien pour l'instant",
+      "Google ou des forums en ligne",
+      "Une appli de suivi santé ou de règles",
+      "Des notes ou un journal",
+      "Les conseils de proches",
+      "Un·e spécialiste ou naturopathe"
+    ],
+    "goldenQuestion": "Si vous pouviez avoir une seule chose pour vous aider dans cette transition, ce serait quoi ?",
+    "goldenHint": "Prenez votre temps — c'est la question la plus importante.",
+    "goldenPlaceholder": "Ce qui ferait la plus grande différence pour vous...",
+    "coDesignQuestion": "Aimeriez-vous être parmi les premières à essayer Hélène et nous aider à façonner le produit ?",
+    "coDesignOptions": [
+      "Yes test and feedback",
+      "Yes just let me try it",
+      "Prefer to wait"
+    ],
+    "coDesignLabels": [
+      "Oui, j'adorerais tester et donner mon avis",
+      "Oui, prévenez-moi quand c'est prêt",
+      "Je préfère attendre la version finale"
+    ],
+    "coDesignNotionMap": {
+      "Oui, j'adorerais tester et donner mon avis": "Yes test and feedback",
+      "Oui, prévenez-moi quand c'est prêt": "Yes just let me try it",
+      "Je préfère attendre la version finale": "Prefer to wait"
+    },
+    "locationQuestion": "Où habitez-vous ?",
+    "locationHint": "Ville ou région — optionnel",
+    "locationPlaceholder": "ex. Paris, Lyon, Bordeaux...",
+    "submit": "Envoyer mes réponses",
+    "submitting": "Envoi...",
+    "successTitle": "Merci. Ça compte énormément.",
+    "successMessage": "Votre voix façonne déjà Hélène. On revient vers vous très vite.",
+    "errorMessage": "Quelque chose n'a pas marché. Réessayez.",
+    "expiredTitle": "Ce lien a expiré",
+    "expiredMessage": "Il semble que ce lien ne soit plus valide. Si vous souhaitez partager vos impressions, contactez-nous directement.",
+    "next": "Suivant",
+    "back": "Retour",
+    "stepOf": "sur"
+  },
   "lang": { "toggle": "EN" }
 }

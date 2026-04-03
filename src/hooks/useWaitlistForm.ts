@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { SurveyAnswers } from '../components/SurveyModal'
 
 type Status = 'idle' | 'loading' | 'survey' | 'submitting' | 'success' | 'error'
@@ -6,6 +7,7 @@ type Status = 'idle' | 'loading' | 'survey' | 'submitting' | 'success' | 'error'
 export function useWaitlistForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
+  const { i18n } = useTranslation()
 
   // Step 1: user enters email → open survey modal (no API call yet)
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,6 +29,7 @@ export function useWaitlistForm() {
           firstName: answers.firstName,
           age: answers.age,
           periodStatus: answers.periodStatus,
+          locale: i18n.language,
           timestamp: new Date().toISOString(),
           source: window.location.href,
         }),

@@ -2,6 +2,24 @@ export const config = { runtime: 'edge' }
 
 const NOTION_VERSION = '2022-06-28'
 
+// Map translated period options → Notion select keys
+const PERIOD_STATUS_MAP: Record<string, string> = {
+  // English
+  'Pretty regular, same as always': 'Pretty regular',
+  'A bit different lately — shorter, longer, or heavier': 'A bit different lately',
+  "All over the place — I never know when it's coming": 'All over the place',
+  "I've gone months without one": 'Gone months without',
+  "They've stopped completely": 'Stopped completely',
+  "I'm on hormonal contraception or HRT": 'Hormonal contraception or HRT',
+  // French
+  'Plutôt régulières, comme d\'habitude': 'Pretty regular',
+  'Un peu différentes ces derniers temps : plus courtes, plus longues, plus abondantes': 'A bit different lately',
+  'Complètement n\'importe quoi, impossible de savoir quand elles arrivent': 'All over the place',
+  'Ça fait des mois que je n\'en ai pas eu': 'Gone months without',
+  'Elles se sont arrêtées': 'Stopped completely',
+  'Je suis sous contraception hormonale ou THS': 'Hormonal contraception or HRT',
+}
+
 function notionHeaders(token: string) {
   return {
     Authorization: `Bearer ${token}`,
@@ -16,6 +34,25 @@ function corsHeaders() {
     'Access-Control-Allow-Methods': 'POST, PATCH, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
+}
+
+async function addToBrevo(email: string, firstName: string, pageId: string, locale: string, listId: number) {
+  const BREVO_API_KEY = process.env.BREVO_API_KEY
+  if (!BREVO_API_KEY) return
+
+  await fetch('https://api.brevo.com/v3/contacts', {
+    method: 'POST',
+    headers: {
+      'api-key': BREVO_API_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      attributes: { FIRSTNAME: firstName, NOTION_PAGE_ID: pageId, LOCALE: locale },
+      listIds: [listId],
+      updateEnabled: true,
+    }),
+  })
 }
 
 export default async function handler(request: Request) {
@@ -33,9 +70,11 @@ export default async function handler(request: Request) {
     })
   }
 
-  // POST — initial email submission: create a new Notion page
+  // POST — Step 1 signup: create Notion page + add to Brevo
   if (request.method === 'POST') {
-    const { email, timestamp, source } = await request.json()
+    const { email, firstName, age, periodStatus, timestamp, source } = await request.json()
+
+    const notionPeriodStatus = PERIOD_STATUS_MAP[periodStatus] ?? periodStatus
 
     const res = await fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
@@ -44,6 +83,9 @@ export default async function handler(request: Request) {
         parent: { database_id: NOTION_DATABASE_ID },
         properties: {
           Email: { title: [{ text: { content: email ?? '' } }] },
+          'First Name': { rich_text: [{ text: { content: firstName ?? '' } }] },
+          Age: { number: age ? Number(age) : null },
+          'Period Status': notionPeriodStatus ? { select: { name: notionPeriodStatus } } : undefined,
           Timestamp: { date: { start: timestamp ?? new Date().toISOString() } },
           Source: { url: source || null },
         },
@@ -59,14 +101,18 @@ export default async function handler(request: Request) {
       })
     }
 
+    // Add contact to Brevo (non-blocking — don't fail signup if Brevo is down)
+    const BREVO_LIST_ID = Number(process.env.BREVO_LIST_ID ?? '2')
+    addToBrevo(email, firstName ?? '', data.id!, locale ?? 'fr', BREVO_LIST_ID).catch(() => {})
+
     return new Response(JSON.stringify({ pageId: data.id }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders() },
     })
   }
 
-  // PATCH — survey completion: update the existing page
+  // PATCH — Step 2 survey: update existing page with deeper profile
   if (request.method === 'PATCH') {
-    const { pageId, symptom, impact, need, wtp } = await request.json()
+    const { pageId, contraception, symptoms, doctorVisit, currentTools, goldenQuestion, coDesign, location } = await request.json()
 
     if (!pageId) {
       return new Response(JSON.stringify({ error: 'pageId is required' }), {
@@ -77,18 +123,30 @@ export default async function handler(request: Request) {
 
     const richText = (value: string) => [{ text: { content: value ?? '' } }]
 
-    await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
       method: 'PATCH',
       headers: notionHeaders(NOTION_TOKEN),
       body: JSON.stringify({
         properties: {
-          Symptom: { rich_text: richText(symptom) },
-          Impact: { rich_text: richText(impact) },
-          Need: { rich_text: richText(need) },
-          WTP: { rich_text: richText(wtp) },
+          Contraception: contraception ? { select: { name: contraception } } : undefined,
+          Symptoms: { rich_text: richText(symptoms) },
+          'Doctor Visit': doctorVisit ? { select: { name: doctorVisit } } : undefined,
+          'Current Tools': { rich_text: richText(currentTools) },
+          'Golden Question': { rich_text: richText(goldenQuestion) },
+          'Co-Design': coDesign ? { select: { name: coDesign } } : undefined,
+          Location: { rich_text: richText(location) },
+          'Step 2 Completed': { checkbox: true },
         },
       }),
     })
+
+    if (!res.ok) {
+      const data = await res.json() as { message?: string }
+      return new Response(JSON.stringify({ error: data.message ?? 'Notion error' }), {
+        status: res.status,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders() },
+      })
+    }
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders() },

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useInView } from '../hooks/useInView'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ChatShowcase, DashboardShowcase, CommunityShowcase } from './PhoneDemos'
 
 const TAB_DURATION = 6000
@@ -12,22 +12,17 @@ export default function Features() {
   const { t } = useTranslation()
   const { ref, inView } = useInView(0.06)
   const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
-  const [cycle, setCycle] = useState(0) // forces CSS restart
+  const [cycle, setCycle] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout>>()
-  const scheduleNext = useCallback(() => {
+
+  useEffect(() => {
     clearTimeout(timerRef.current)
-    if (paused) return
     timerRef.current = setTimeout(() => {
       setActive(prev => (prev + 1) % tabKeys.length)
       setCycle(c => c + 1)
     }, TAB_DURATION)
-  }, [paused])
-
-  useEffect(() => {
-    scheduleNext()
     return () => clearTimeout(timerRef.current)
-  }, [active, scheduleNext])
+  }, [active, cycle])
 
   const selectTab = (i: number) => {
     setActive(i)
@@ -57,11 +52,7 @@ export default function Features() {
         </div>
 
         {/* Tabs + showcase */}
-        <div
-          className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-        >
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
           {/* Left: tabs */}
           <div className="flex flex-col">
             {tabKeys.map((key, i) => {
@@ -78,10 +69,7 @@ export default function Features() {
                       <div
                         key={`bar-${cycle}`}
                         className="absolute inset-y-0 left-0 bg-[#0A0A0A] tab-progress"
-                        style={{
-                          animationDuration: `${TAB_DURATION}ms`,
-                          animationPlayState: paused ? 'paused' : 'running',
-                        }}
+                        style={{ animationDuration: `${TAB_DURATION}ms` }}
                       />
                     )}
                     {i < active && <div className="absolute inset-0 bg-[#0A0A0A]" />}

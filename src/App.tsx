@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import About from './pages/About'
+import Survey from './pages/Survey'
 import { initialLocale } from './i18n'
 import { useLocaleSync } from './hooks/useLocaleSync'
 
@@ -20,6 +21,11 @@ function LocaleRoutes() {
   )
 }
 
+function SurveyRoute() {
+  useLocaleSync()
+  return <Survey />
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -27,6 +33,11 @@ export default function App() {
         {/* Locale-prefixed routes */}
         <Route path="/fr/*" element={<LocaleRoutes />} />
         <Route path="/en/*" element={<LocaleRoutes />} />
+
+        {/* Survey — no navbar, standalone page */}
+        <Route path="/fr/survey" element={<SurveyRoute />} />
+        <Route path="/en/survey" element={<SurveyRoute />} />
+        <Route path="/survey" element={<Navigate to={`/${initialLocale}/survey`} replace />} />
 
         {/* Root — redirect to detected locale */}
         <Route path="/" element={<Navigate to={`/${initialLocale}/`} replace />} />

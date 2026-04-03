@@ -140,5 +140,74 @@
       "I'm on hormonal contraception or HRT"
     ]
   },
+  "survey2": {
+    "pageTitle": "Help us build Hélène for you",
+    "pageSubtitle": "7 questions, 3 minutes. Your answers shape everything we build.",
+    "contraceptionQuestion": "Are you currently taking hormonal contraception or HRT?",
+    "contraceptionOptions": ["No", "Yes — hormonal contraception", "Yes — HRT", "Yes — other"],
+    "symptomsQuestion": "Which of these have you noticed in the past 6 months?",
+    "symptomsHint": "Check all that apply",
+    "symptomsOptions": [
+      "Hot flashes or night sweats",
+      "Sleep difficulties",
+      "Mood changes (anxiety, irritability, sadness)",
+      "Brain fog or memory issues",
+      "Joint or muscle pain",
+      "Changes in weight or body shape",
+      "Vaginal dryness or urinary changes",
+      "Low energy or fatigue",
+      "None of the above"
+    ],
+    "doctorQuestion": "Have you spoken with a doctor about these changes?",
+    "doctorOptions": [
+      "No, I haven't",
+      "Yes, but I didn't feel heard or understood",
+      "Yes, and it was helpful",
+      "I'm not sure these are worth mentioning to a doctor"
+    ],
+    "doctorNotionMap": {
+      "No, I haven't": "No I have not",
+      "Yes, but I didn't feel heard or understood": "Yes but did not feel heard",
+      "Yes, and it was helpful": "Yes and it was helpful",
+      "I'm not sure these are worth mentioning to a doctor": "Not sure worth mentioning"
+    },
+    "toolsQuestion": "What do you currently use to manage or track your symptoms?",
+    "toolsHint": "Check all that apply",
+    "toolsOptions": [
+      "Nothing yet",
+      "Google or online forums",
+      "A health or period tracking app",
+      "Notes or journal",
+      "Advice from friends or family",
+      "A specialist or naturopath"
+    ],
+    "goldenQuestion": "If you could have one thing to help you through this transition, what would it be?",
+    "goldenHint": "Take your time — this is the most important question.",
+    "goldenPlaceholder": "What would make the biggest difference for you...",
+    "coDesignQuestion": "Would you like to be among the first to try Hélène and help shape the product?",
+    "coDesignOptions": [
+      "Yes, I'd love to test it and share feedback",
+      "Yes, just let me try it when it's ready",
+      "I'd prefer to wait for the final version"
+    ],
+    "coDesignNotionMap": {
+      "Yes, I'd love to test it and share feedback": "Yes test and feedback",
+      "Yes, just let me try it when it's ready": "Yes just let me try it",
+      "I'd prefer to wait for the final version": "Prefer to wait"
+    },
+    "locationQuestion": "Where do you live?",
+    "locationHint": "City or region — optional",
+    "locationPlaceholder": "e.g. Paris, Lyon, Bordeaux...",
+    "submit": "Send my answers",
+    "submitting": "Sending...",
+    "successTitle": "Thank you. This means a lot.",
+    "successMessage": "Your voice is already shaping Hélène. We'll be in touch very soon.",
+    "errorMessage": "Something went wrong. Please try again.",
+    "expiredTitle": "This link has expired",
+    "expiredMessage": "It looks like this survey link is no longer valid. If you'd like to share your thoughts, reach out to us directly.",
+    "next": "Next",
+    "back": "Back",
+    "stepOf": "of"
+  },
   "lang": { "toggle": "FR" }
 }
