@@ -180,7 +180,26 @@ const en = {
   'onboard.medical_sub': 'A doctor or specialist following your transition?',
   'onboard.name': "What's your first name?",
   'onboard.name_sub': 'So Hélène can talk to you like a person.',
+  'onboard.name_placeholder': 'Your first name',
   'onboard.begin': "Let's begin",
+  // Symptoms options
+  'onboard.sym.sleep': 'Sleep issues', 'onboard.sym.anxiety': 'Anxiety', 'onboard.sym.fatigue': 'Fatigue',
+  'onboard.sym.hotflashes': 'Hot flashes', 'onboard.sym.brainfog': 'Brain fog', 'onboard.sym.moodswings': 'Mood swings',
+  'onboard.sym.weight': 'Weight changes', 'onboard.sym.jointpain': 'Joint pain', 'onboard.sym.libido': 'Low libido', 'onboard.sym.dryness': 'Dryness',
+  // HRT options
+  'onboard.hrt.none': 'No, nothing', 'onboard.hrt.yes': 'Yes, HRT', 'onboard.hrt.natural': 'Natural / herbal remedies', 'onboard.hrt.considering': "I'm considering it",
+  // Exercise options
+  'onboard.ex.rarely': 'Rarely', 'onboard.ex.sometimes': 'Sometimes (1-2x/week)', 'onboard.ex.regularly': 'Regularly (3-4x/week)', 'onboard.ex.daily': 'Daily',
+  // Habits labels
+  'onboard.smoking': 'Smoking', 'onboard.alcohol': 'Alcohol', 'onboard.caffeine': 'Caffeine',
+  'onboard.h.never': 'Never', 'onboard.h.former': 'Former', 'onboard.h.current': 'Current',
+  'onboard.h.rarely': 'Rarely', 'onboard.h.occasionally': 'Occasionally', 'onboard.h.regularly': 'Regularly',
+  'onboard.h.none': 'None', 'onboard.h.low': 'Low', 'onboard.h.moderate': 'Moderate', 'onboard.h.high': 'High',
+  // Goal options
+  'onboard.goal.understand': "Understanding what's happening to me", 'onboard.goal.community': 'Connecting with other women',
+  'onboard.goal.track': 'Tracking my symptoms', 'onboard.goal.doctor': 'Preparing for my doctor',
+  // Medical options
+  'onboard.med.yes': 'Yes, regularly', 'onboard.med.sometimes': 'Sometimes', 'onboard.med.no': 'No',
 
   // Pseudonym
   'pseudo.title': 'Choose a pseudonym',
@@ -349,7 +368,26 @@ const fr: Record<string, string> = {
   'onboard.medical_sub': 'Un médecin ou spécialiste qui suit votre transition ?',
   'onboard.name': 'C\'est quoi votre prénom ?',
   'onboard.name_sub': 'Pour qu\'Hélène puisse vous parler comme à une vraie personne.',
+  'onboard.name_placeholder': 'Votre prénom',
   'onboard.begin': 'C\'est parti',
+  // Symptoms
+  'onboard.sym.sleep': 'Sommeil', 'onboard.sym.anxiety': 'Anxiété', 'onboard.sym.fatigue': 'Fatigue',
+  'onboard.sym.hotflashes': 'Bouffées de chaleur', 'onboard.sym.brainfog': 'Brouillard mental', 'onboard.sym.moodswings': 'Sautes d\'humeur',
+  'onboard.sym.weight': 'Poids', 'onboard.sym.jointpain': 'Douleurs articulaires', 'onboard.sym.libido': 'Libido', 'onboard.sym.dryness': 'Sécheresse',
+  // HRT
+  'onboard.hrt.none': 'Non, rien', 'onboard.hrt.yes': 'Oui, THS', 'onboard.hrt.natural': 'Remèdes naturels', 'onboard.hrt.considering': 'J\'y réfléchis',
+  // Exercise
+  'onboard.ex.rarely': 'Rarement', 'onboard.ex.sometimes': 'Parfois (1-2x/sem)', 'onboard.ex.regularly': 'Régulièrement (3-4x/sem)', 'onboard.ex.daily': 'Tous les jours',
+  // Habits
+  'onboard.smoking': 'Tabac', 'onboard.alcohol': 'Alcool', 'onboard.caffeine': 'Caféine',
+  'onboard.h.never': 'Jamais', 'onboard.h.former': 'Ancien', 'onboard.h.current': 'Actuel',
+  'onboard.h.rarely': 'Rarement', 'onboard.h.occasionally': 'Occasionnel', 'onboard.h.regularly': 'Régulier',
+  'onboard.h.none': 'Aucune', 'onboard.h.low': 'Peu', 'onboard.h.moderate': 'Modérée', 'onboard.h.high': 'Beaucoup',
+  // Goals
+  'onboard.goal.understand': 'Comprendre ce qui m\'arrive', 'onboard.goal.community': 'Échanger avec d\'autres femmes',
+  'onboard.goal.track': 'Suivre mes symptômes', 'onboard.goal.doctor': 'Préparer mes rendez-vous médicaux',
+  // Medical
+  'onboard.med.yes': 'Oui, régulièrement', 'onboard.med.sometimes': 'Parfois', 'onboard.med.no': 'Non',
 
   // Pseudonym
   'pseudo.title': 'Choisissez un pseudonyme',

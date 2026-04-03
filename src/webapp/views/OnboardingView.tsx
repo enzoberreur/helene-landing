@@ -132,8 +132,8 @@ export default function OnboardingView() {
         {step === 2 && (
           <StepWrapper title={t('onboard.symptoms')} subtitle={t('onboard.symptoms_sub')}>
             <div className="grid grid-cols-2 gap-2">
-              {['Sleep issues', 'Anxiety', 'Fatigue', 'Hot flashes', 'Brain fog', 'Mood swings', 'Weight changes', 'Joint pain', 'Low libido', 'Dryness'].map(s => (
-                <ChipBtn key={s} label={s} selected={answers.symptoms.includes(s)} onClick={() => toggleSymptom(s)} />
+              {['sleep', 'anxiety', 'fatigue', 'hotflashes', 'brainfog', 'moodswings', 'weight', 'jointpain', 'libido', 'dryness'].map(s => (
+                <ChipBtn key={s} label={t(`onboard.sym.${s}`)} selected={answers.symptoms.includes(s)} onClick={() => toggleSymptom(s)} />
               ))}
             </div>
           </StepWrapper>
@@ -142,10 +142,10 @@ export default function OnboardingView() {
         {step === 3 && (
           <StepWrapper title={t('onboard.hrt')} subtitle={t('onboard.hrt_sub')}>
             <div className="flex flex-col gap-2.5">
-              <OptionBtn label="No, nothing" selected={answers.hrtStatus === 'none'} onClick={() => set('hrtStatus', 'none')} />
-              <OptionBtn label="Yes, HRT" selected={answers.hrtStatus === 'hrt'} onClick={() => set('hrtStatus', 'hrt')} />
-              <OptionBtn label="Natural / herbal remedies" selected={answers.hrtStatus === 'natural'} onClick={() => set('hrtStatus', 'natural')} />
-              <OptionBtn label="I'm considering it" selected={answers.hrtStatus === 'considering'} onClick={() => set('hrtStatus', 'considering')} />
+              <OptionBtn label={t('onboard.hrt.none')} selected={answers.hrtStatus === 'none'} onClick={() => set('hrtStatus', 'none')} />
+              <OptionBtn label={t('onboard.hrt.yes')} selected={answers.hrtStatus === 'hrt'} onClick={() => set('hrtStatus', 'hrt')} />
+              <OptionBtn label={t('onboard.hrt.natural')} selected={answers.hrtStatus === 'natural'} onClick={() => set('hrtStatus', 'natural')} />
+              <OptionBtn label={t('onboard.hrt.considering')} selected={answers.hrtStatus === 'considering'} onClick={() => set('hrtStatus', 'considering')} />
             </div>
           </StepWrapper>
         )}
@@ -153,10 +153,10 @@ export default function OnboardingView() {
         {step === 4 && (
           <StepWrapper title={t('onboard.exercise')} subtitle={t('onboard.exercise_sub')}>
             <div className="flex flex-col gap-2.5">
-              <OptionBtn label="Rarely" selected={answers.exerciseFrequency === 'rarely'} onClick={() => set('exerciseFrequency', 'rarely')} />
-              <OptionBtn label="Sometimes (1-2x/week)" selected={answers.exerciseFrequency === 'sometimes'} onClick={() => set('exerciseFrequency', 'sometimes')} />
-              <OptionBtn label="Regularly (3-4x/week)" selected={answers.exerciseFrequency === 'regularly'} onClick={() => set('exerciseFrequency', 'regularly')} />
-              <OptionBtn label="Daily" selected={answers.exerciseFrequency === 'daily'} onClick={() => set('exerciseFrequency', 'daily')} />
+              <OptionBtn label={t('onboard.ex.rarely')} selected={answers.exerciseFrequency === 'rarely'} onClick={() => set('exerciseFrequency', 'rarely')} />
+              <OptionBtn label={t('onboard.ex.sometimes')} selected={answers.exerciseFrequency === 'sometimes'} onClick={() => set('exerciseFrequency', 'sometimes')} />
+              <OptionBtn label={t('onboard.ex.regularly')} selected={answers.exerciseFrequency === 'regularly'} onClick={() => set('exerciseFrequency', 'regularly')} />
+              <OptionBtn label={t('onboard.ex.daily')} selected={answers.exerciseFrequency === 'daily'} onClick={() => set('exerciseFrequency', 'daily')} />
             </div>
           </StepWrapper>
         )}
@@ -165,26 +165,26 @@ export default function OnboardingView() {
           <StepWrapper title={t('onboard.habits')} subtitle={t('onboard.habits_sub')}>
             <div className="flex flex-col gap-5">
               <div>
-                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>Smoking</p>
+                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>{t('onboard.smoking')}</p>
                 <div className="flex gap-2">
-                  {[['Never', 'never'], ['Former', 'former'], ['Current', 'current']].map(([l, v]) => (
-                    <ChipBtn key={v} label={l} selected={answers.smokingStatus === v} onClick={() => set('smokingStatus', v)} />
+                  {['never', 'former', 'current'].map(v => (
+                    <ChipBtn key={v} label={t(`onboard.h.${v}`)} selected={answers.smokingStatus === v} onClick={() => set('smokingStatus', v)} />
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>Alcohol</p>
+                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>{t('onboard.alcohol')}</p>
                 <div className="flex gap-2">
-                  {[['Rarely', 'rarely'], ['Occasionally', 'occasionally'], ['Regularly', 'regularly']].map(([l, v]) => (
-                    <ChipBtn key={v} label={l} selected={answers.alcoholFrequency === v} onClick={() => set('alcoholFrequency', v)} />
+                  {['rarely', 'occasionally', 'regularly'].map(v => (
+                    <ChipBtn key={v} label={t(`onboard.h.${v}`)} selected={answers.alcoholFrequency === v} onClick={() => set('alcoholFrequency', v)} />
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>Caffeine</p>
+                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: theme.textLight }}>{t('onboard.caffeine')}</p>
                 <div className="flex gap-2">
-                  {[['None', 'none'], ['Low', 'low'], ['Moderate', 'moderate'], ['High', 'high']].map(([l, v]) => (
-                    <ChipBtn key={v} label={l} selected={answers.caffeineIntake === v} onClick={() => set('caffeineIntake', v)} />
+                  {['none', 'low', 'moderate', 'high'].map(v => (
+                    <ChipBtn key={v} label={t(`onboard.h.${v}`)} selected={answers.caffeineIntake === v} onClick={() => set('caffeineIntake', v)} />
                   ))}
                 </div>
               </div>
@@ -195,10 +195,10 @@ export default function OnboardingView() {
         {step === 6 && (
           <StepWrapper title={t('onboard.goal')} subtitle={t('onboard.goal_sub')}>
             <div className="flex flex-col gap-2.5">
-              <OptionBtn label="Understanding what's happening to me" selected={answers.primaryGoal === 'understand'} onClick={() => set('primaryGoal', 'understand')} />
-              <OptionBtn label="Connecting with other women" selected={answers.primaryGoal === 'community'} onClick={() => set('primaryGoal', 'community')} />
-              <OptionBtn label="Tracking my symptoms" selected={answers.primaryGoal === 'track'} onClick={() => set('primaryGoal', 'track')} />
-              <OptionBtn label="Preparing for my doctor" selected={answers.primaryGoal === 'doctor'} onClick={() => set('primaryGoal', 'doctor')} />
+              <OptionBtn label={t('onboard.goal.understand')} selected={answers.primaryGoal === 'understand'} onClick={() => set('primaryGoal', 'understand')} />
+              <OptionBtn label={t('onboard.goal.community')} selected={answers.primaryGoal === 'community'} onClick={() => set('primaryGoal', 'community')} />
+              <OptionBtn label={t('onboard.goal.track')} selected={answers.primaryGoal === 'track'} onClick={() => set('primaryGoal', 'track')} />
+              <OptionBtn label={t('onboard.goal.doctor')} selected={answers.primaryGoal === 'doctor'} onClick={() => set('primaryGoal', 'doctor')} />
             </div>
           </StepWrapper>
         )}
@@ -206,9 +206,9 @@ export default function OnboardingView() {
         {step === 7 && (
           <StepWrapper title={t('onboard.medical')} subtitle={t('onboard.medical_sub')}>
             <div className="flex flex-col gap-2.5">
-              <OptionBtn label="Yes, regularly" selected={answers.medicalFollowUp === 'yes'} onClick={() => set('medicalFollowUp', 'yes')} />
-              <OptionBtn label="Sometimes" selected={answers.medicalFollowUp === 'sometimes'} onClick={() => set('medicalFollowUp', 'sometimes')} />
-              <OptionBtn label="No" selected={answers.medicalFollowUp === 'no'} onClick={() => set('medicalFollowUp', 'no')} />
+              <OptionBtn label={t('onboard.med.yes')} selected={answers.medicalFollowUp === 'yes'} onClick={() => set('medicalFollowUp', 'yes')} />
+              <OptionBtn label={t('onboard.med.sometimes')} selected={answers.medicalFollowUp === 'sometimes'} onClick={() => set('medicalFollowUp', 'sometimes')} />
+              <OptionBtn label={t('onboard.med.no')} selected={answers.medicalFollowUp === 'no'} onClick={() => set('medicalFollowUp', 'no')} />
             </div>
           </StepWrapper>
         )}
@@ -219,7 +219,7 @@ export default function OnboardingView() {
               type="text"
               value={answers.firstName}
               onChange={e => set('firstName', e.target.value)}
-              placeholder="Your first name"
+              placeholder={t('onboard.name_placeholder')}
               autoFocus
               className="w-full px-5 py-4 rounded-2xl text-lg focus:outline-none"
               style={{ background: theme.surface, color: theme.textPrimary, border: 'none' }}
