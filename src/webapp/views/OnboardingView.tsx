@@ -63,11 +63,11 @@ export default function OnboardingView() {
   const OptionBtn = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
-      className="w-full text-left px-4 py-3.5 rounded-2xl border text-sm font-medium transition-all"
+      className="w-full text-left px-5 py-4 rounded-2xl text-sm font-medium transition-all"
       style={{
-        borderColor: selected ? theme.rose : theme.separator,
-        background: selected ? theme.lavenderFill : 'transparent',
+        background: selected ? theme.lavenderFill : theme.surface,
         color: theme.textPrimary,
+        fontWeight: selected ? 600 : 400,
       }}
     >
       {label}
