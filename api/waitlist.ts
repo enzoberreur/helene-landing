@@ -36,11 +36,11 @@ function corsHeaders() {
   }
 }
 
-async function addToBrevo(email: string, firstName: string, pageId: string, locale: string, listId: number) {
+async function addToBrevo(email: string, firstName: string, pageId: string, locale: string, listId: number): Promise<string | null> {
   const BREVO_API_KEY = process.env.BREVO_API_KEY
-  if (!BREVO_API_KEY) return
+  if (!BREVO_API_KEY) return 'BREVO_API_KEY not set'
 
-  await fetch('https://api.brevo.com/v3/contacts', {
+  const res = await fetch('https://api.brevo.com/v3/contacts', {
     method: 'POST',
     headers: {
       'api-key': BREVO_API_KEY,
@@ -53,6 +53,12 @@ async function addToBrevo(email: string, firstName: string, pageId: string, loca
       updateEnabled: true,
     }),
   })
+
+  if (!res.ok) {
+    const err = await res.text()
+    return `Brevo ${res.status}: ${err}`
+  }
+  return null
 }
 
 export default async function handler(request: Request) {
@@ -101,11 +107,11 @@ export default async function handler(request: Request) {
       })
     }
 
-    // Add contact to Brevo (non-blocking — don't fail signup if Brevo is down)
+    // Add contact to Brevo — wait for result so we can debug
     const BREVO_LIST_ID = Number(process.env.BREVO_LIST_ID ?? '2')
-    addToBrevo(email, firstName ?? '', data.id!, locale ?? 'fr', BREVO_LIST_ID).catch(() => {})
+    const brevoError = await addToBrevo(email, firstName ?? '', data.id!, locale ?? 'fr', BREVO_LIST_ID).catch((e) => String(e))
 
-    return new Response(JSON.stringify({ pageId: data.id }), {
+    return new Response(JSON.stringify({ pageId: data.id, brevoError: brevoError ?? null }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders() },
     })
   }
