@@ -118,7 +118,7 @@
     "advisorText": "On cherche des spécialistes de la ménopause pour rejoindre notre comité scientifique.",
     "advisorCTA": "Nous contacter",
     "closingHeadline": "Prête ?",
-    "closingDescription": "Rejoignez les 2 400+ femmes déjà inscrites. L'accès anticipé ouvre bientôt.",
+    "closingDescription": "Rejoignez les {{count}} femmes déjà inscrites. L'accès anticipé ouvre bientôt.",
     "closingCTA": "M'inscrire"
   },
   "survey": {

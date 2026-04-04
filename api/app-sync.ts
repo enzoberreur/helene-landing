@@ -144,5 +144,70 @@ export default async function handler(request: Request) {
     return json({ ok: true })
   }
 
+  // Sync onboarding profile — find the waitlist entry by email and update it
+  if (request.method === 'POST' && action === 'onboarding') {
+    const { email, firstName, journeyStage, ageRange, symptoms, hrtStatus, exerciseFrequency, smokingStatus, alcoholFrequency, caffeineIntake, primaryGoal, medicalFollowUp } = await request.json()
+
+    const WAITLIST_DB = process.env.NOTION_DATABASE_ID
+    if (!WAITLIST_DB) return json({ error: 'Waitlist DB not configured' }, 500)
+
+    // Find the user's page by email
+    const searchRes = await fetch(`https://api.notion.com/v1/databases/${WAITLIST_DB}/query`, {
+      method: 'POST',
+      headers: notionHeaders(NOTION_TOKEN),
+      body: JSON.stringify({
+        filter: { property: 'Email', title: { equals: email } },
+        page_size: 1,
+      }),
+    })
+    const searchData = await searchRes.json() as { results: Array<{ id: string }> }
+    const pageId = searchData.results?.[0]?.id
+
+    if (!pageId) {
+      // No existing entry — create a new page in the waitlist
+      await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers: notionHeaders(NOTION_TOKEN),
+        body: JSON.stringify({
+          parent: { database_id: WAITLIST_DB },
+          properties: {
+            Email: { title: richText(email) },
+            'First Name': { rich_text: richText(firstName ?? '') },
+            Age: { number: ageRange ? parseInt(ageRange) || null : null },
+          },
+        }),
+      })
+    }
+
+    // Also save full profile to a dedicated App Profiles database
+    const PROFILES_DB = process.env.APP_PROFILES_DB
+    if (PROFILES_DB) {
+      await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers: notionHeaders(NOTION_TOKEN),
+        body: JSON.stringify({
+          parent: { database_id: PROFILES_DB },
+          properties: {
+            Entry: { title: richText(`${firstName ?? email}`) },
+            'User Email': { rich_text: richText(email) },
+            'First Name': { rich_text: richText(firstName ?? '') },
+            'Journey Stage': { rich_text: richText(journeyStage ?? '') },
+            'Age Range': { rich_text: richText(ageRange ?? '') },
+            Symptoms: { rich_text: richText(Array.isArray(symptoms) ? symptoms.join(', ') : '') },
+            'HRT Status': { rich_text: richText(hrtStatus ?? '') },
+            Exercise: { rich_text: richText(exerciseFrequency ?? '') },
+            Smoking: { rich_text: richText(smokingStatus ?? '') },
+            Alcohol: { rich_text: richText(alcoholFrequency ?? '') },
+            Caffeine: { rich_text: richText(caffeineIntake ?? '') },
+            'Primary Goal': { rich_text: richText(primaryGoal ?? '') },
+            'Medical Follow-Up': { rich_text: richText(medicalFollowUp ?? '') },
+          },
+        }),
+      }).catch(() => {})
+    }
+
+    return json({ ok: true })
+  }
+
   return new Response('Method not allowed', { status: 405, headers: corsHeaders() })
 }

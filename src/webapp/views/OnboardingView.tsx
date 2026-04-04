@@ -49,6 +49,15 @@ export default function OnboardingView() {
       onboardingComplete: true,
       accountCreatedAt: new Date().toISOString(),
     }))
+    // Sync onboarding to Notion
+    const email = profile.userEmail
+    if (email) {
+      fetch('/api/app-sync?action=onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, ...answers }),
+      }).catch(() => {})
+    }
     trackApp.onboardingComplete()
     requestNotificationPermission()
   }

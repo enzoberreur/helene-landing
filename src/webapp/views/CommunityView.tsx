@@ -128,6 +128,7 @@ export default function CommunityView() {
         ...data,
         pseudonym: profile.communityPseudonym || profile.firstName || 'Anonymous',
         avatarSeed: profile.communityAvatarSeed,
+        email: profile.userEmail,
       }),
     })
     setShowNewPost(false)
@@ -144,6 +145,7 @@ export default function CommunityView() {
         pseudonym: profile.communityPseudonym || profile.firstName || 'Anonymous',
         avatarSeed: profile.communityAvatarSeed,
         parentCommentId: parentCommentId ?? '',
+        email: profile.userEmail,
       }),
     })
     fetchPosts()

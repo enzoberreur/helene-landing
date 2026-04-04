@@ -118,7 +118,7 @@
     "advisorText": "Looking for menopause specialists to join our scientific board.",
     "advisorCTA": "Get in touch",
     "closingHeadline": "Ready?",
-    "closingDescription": "Join 2,400+ women on the waitlist. Early access opens soon.",
+    "closingDescription": "Join {{count}} women on the waitlist. Early access opens soon.",
     "closingCTA": "Join the waitlist"
   },
   "survey": {

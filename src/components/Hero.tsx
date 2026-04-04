@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { useRef, useEffect } from 'react'
 import { useWaitlistForm } from '../hooks/useWaitlistForm'
+import { useWaitlistCount } from '../hooks/useWaitlistCount'
 import SurveyModal from './SurveyModal'
 
 export default function Hero() {
   const { t } = useTranslation()
   const { email, setEmail, status, handleSubmit, handleSurveyComplete, handleSurveySkip } = useWaitlistForm()
+  const { formatted: waitlistCount } = useWaitlistCount()
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export default function Hero() {
 
             <div className="animate-fade-in-up" style={{ animationDelay: '360ms' }}>
               <p className="text-[13px] text-white/50">
-                <span className="font-semibold text-white/70">{t('hero.socialCount')}</span>{' '}{t('hero.socialProof')}
+                <span className="font-semibold text-white/70">{waitlistCount}</span>{' '}{t('hero.socialProof')}
               </p>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useRef, useEffect } from 'react'
 import Footer from '../components/Footer'
 import { useInView } from '../hooks/useInView'
+import { useWaitlistCount } from '../hooks/useWaitlistCount'
 
 function Section({ children, className = '', bg = 'bg-white' }: { children: React.ReactNode; className?: string; bg?: string }) {
   const { ref, inView } = useInView(0.08)
@@ -39,6 +40,7 @@ const STATS = ['stat1', 'stat2', 'stat3', 'stat4'] as const
 
 export default function About() {
   const { t, i18n } = useTranslation()
+  const { formatted: waitlistCount } = useWaitlistCount()
   const lang = i18n.language === 'fr' ? 'fr' : 'en'
   const { pathname } = useLocation()
   const prefix = pathname.startsWith('/fr') ? '/fr' : '/en'
@@ -225,7 +227,7 @@ export default function About() {
           >
             {t('about.closingHeadline')}
           </h2>
-          <p className="reveal reveal-2 text-[16px] text-[#0A0A0A]/40 leading-[1.7] mt-5">{t('about.closingDescription')}</p>
+          <p className="reveal reveal-2 text-[16px] text-[#0A0A0A]/40 leading-[1.7] mt-5">{t('about.closingDescription', { count: waitlistCount } as Record<string, string>)}</p>
           <div className="reveal reveal-3 mt-8">
             <Link
               to={`${prefix}/#waitlist`}

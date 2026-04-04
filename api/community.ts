@@ -140,7 +140,7 @@ export default async function handler(request: Request) {
 
   // POST — create a post
   if (request.method === 'POST' && action === 'post') {
-    const { title, body, pseudonym, avatarSeed, tags, pollQuestion, pollOptions } = await request.json()
+    const { title, body, pseudonym, avatarSeed, tags, pollQuestion, pollOptions, email } = await request.json()
 
     const properties: Record<string, unknown> = {
       Title: { title: richText(title) },
@@ -149,6 +149,7 @@ export default async function handler(request: Request) {
       'Avatar Seed': { number: avatarSeed ?? 0 },
       Tags: { rich_text: richText(Array.isArray(tags) ? tags.join(',') : '') },
       Upvotes: { number: 0 },
+      'User Email': { rich_text: richText(email ?? '') },
     }
 
     if (pollQuestion && pollOptions?.length) {
@@ -170,7 +171,7 @@ export default async function handler(request: Request) {
 
   // POST — create a comment
   if (request.method === 'POST' && action === 'comment') {
-    const { postId, body, pseudonym, avatarSeed, parentCommentId } = await request.json()
+    const { postId, body, pseudonym, avatarSeed, parentCommentId, email } = await request.json()
 
     const res = await fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
@@ -184,6 +185,7 @@ export default async function handler(request: Request) {
           Pseudonym: { rich_text: richText(pseudonym) },
           'Avatar Seed': { number: avatarSeed ?? 0 },
           'Parent Comment ID': { rich_text: richText(parentCommentId ?? '') },
+          'User Email': { rich_text: richText(email ?? '') },
         },
       }),
     })
