@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Survey from './pages/Survey'
 import WebApp from './webapp/WebApp'
+import Dashboard from './pages/Dashboard'
 import { initialLocale } from './i18n'
 import { useLocaleSync } from './hooks/useLocaleSync'
 
@@ -42,6 +43,9 @@ export default function App() {
 
         {/* Web App — iPhone-framed co-design prototype */}
         <Route path="/app" element={<WebApp />} />
+
+        {/* Admin dashboard */}
+        <Route path="/dashboard" element={<Dashboard />} />
 
         {/* Root — redirect to detected locale */}
         <Route path="/" element={<Navigate to={`/${initialLocale}/`} replace />} />
